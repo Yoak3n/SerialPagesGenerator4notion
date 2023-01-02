@@ -3,12 +3,12 @@
 
 # 使用步骤
 ## 第一步：获得目标database的id
-**当前版本仅支持database对象，即只且只能有数据库的页面**
+<font color =#FF3030>当前版本仅支持database对象，即只有且只能有一个数据库的页面</font>
 ### 1.获得database的url链接
 网页端直接在地址栏获得database的url
 桌面端和移动端需要通过界面右上角三个点下的Copy link复制得到url
 ### 2.提取url链接中页面的id
-https://www.notion.so/页面的id?v=xxxxxxxxxx
+https：//www.notion.so/页面的id?v=xxxxxxxxxx
 从url链接截取下来即可
 
 ## 第二步：创建可以操作notion的integration并获得其token令牌
@@ -20,7 +20,7 @@ https://www.notion.so/页面的id?v=xxxxxxxxxx
 
 ## 第三步：确认database的相关配置
 ### 1.指定控制当前页面的intergration
-回到database页面，点击右上角的三个小点，Add connections让刚刚创建好的intergration和这个页面连接起来，使之可以操作这个页面。
+回到database页面，点击右上角的三个小点，Add connections让刚刚创建好的intergration和这个页面连接起来，使之可以操作这个页面
 ### 2.确认序号创建的属性properties
 该属性的类型必须是number，记住属性名
 ### 3.如果需要分组，那么就确认分组的属性properties
@@ -30,19 +30,21 @@ https://www.notion.so/页面的id?v=xxxxxxxxxx
 ### 1.首次运行
 #### 初始化配置
 首次运行程序会在程序所在的目录下创建一个clc目录来收集程序生成的文件(ps：当前版本只在clc目录下创建key目录用来存放target.json配置文件)，程序会要求根据提示依次输入：
-	(1)目标database的id
-	(2)intergration的token
-	(3)序号所在的属性名
-	(4)分组的属性名，不填就表示不分组
+* （1）目标database的id
+* （2）intergration的token
+* （3）序号所在的属性名
+* （4）分组的属性名，不填就表示不分组
 #### 输入要创建的页面数量
 #### 完成创建后，在命令行按回车键(Enter)确认结束
 
 ### 2.后续运行
+
 #### 是否修改配置文件
 程序会询问是否修改配置，输入y就会重写配置文件，
 不填就使用当前本地的配置
-#### 多个配置文件？
+# 开发想法（并非计划）
+## 多配置文件
 后续可能会开发本地保存多个配置文件，当前版本要实现保存多个配置文件并选择使用其中某一个需要手动进行切换：把要使用的配置文件改名为target，其他配置文件改为另外的文件名。
-
-
-
+## GUI程序
+如果未来实现了多配置文件，那么开发GUI也应该提上日程。有了图形界面之后操作就能更加简洁，比如就不用每次运行程序都询问是否修改配置文件，再比如可以直接选择使用哪个配置文件。
+问题在于开发GUI程序导入PyQt库之后这个python程序的大小不可避免的膨胀，也就不再轻量化。当然这仅仅只是一个忧虑，具体还是要看结果到底如何。
