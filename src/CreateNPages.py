@@ -1,15 +1,16 @@
 # encoding=utf-8
 # Time：2023/1/2 12:25
 # by Yoake
-import json
-import time,os
+import time, os, json
 
 from tqdm import tqdm
 import requests
 
-def post_notion(count,index_name,database_id,token,group_name,group):
+def post_notion(count, index_name, database_id, token, group_name, group):
     print('')
+    # 创建进度条对象
     bar = tqdm(total=count)
+    # 上传过程错误记数
     number = 0
 
     bar.set_description_str('正在上传notion...')
@@ -20,8 +21,8 @@ def post_notion(count,index_name,database_id,token,group_name,group):
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token,
     }
+    # 批量创建页面的循环
     for i in range(count):
-
         if group_name != '':
             body = {
                 "parent": {
@@ -43,7 +44,7 @@ def post_notion(count,index_name,database_id,token,group_name,group):
                     index_name: {"number": i + 1}
                 }
             }
-
+        # 构建死循环来捕获请求过于频繁的错误，防止因这个错误而终止程序
         while True:
             try:
                 r = requests.post(url, json=body, headers=headers)
@@ -77,14 +78,16 @@ def get_config():
             os.mkdir('./clc/key')
 
     exist = os.path.exists('./clc/key/target.json')
+    # 如果没有本地配置文件
     if exist :
-        check = input("是否使用新配置文件？y/n")
+        check = input("是否重新配置文件？y/n")
         if check =='y' or check=='Y' or check == 'yes' or check=="YES" or check=="Yes":
             noedit =False
         else:
             noedit = True
     else:
         noedit = False
+    # 如果不需要重新配置
     if noedit:
         with open('./clc/key/target.json','r',encoding='utf-8') as fp:
             js = json.load(fp)
@@ -99,8 +102,11 @@ def get_config():
         page_id = input('请输入数据库id：')
         token = input('请输入机器人token：')
         index_name = input("请输入生成序号所在的属性名：")
-        group_name = input("请输入分组的属性名：") # 为空即不分类
-        group =input("请输入分组的组名：")
+        group_name = input("请输入分组的属性名：") # 为空即不分组
+        if group_name !='':
+            group =input("请输入分组的组名：")
+        else :
+            group = ''
         dict = {"page_id": page_id, "token": token, "index_name": index_name, "group_name": group_name, "group": group}
         with open('./clc/key/target.json', 'w', encoding='utf-8') as fp:
             fp.write(json.dumps(dict))
@@ -109,8 +115,11 @@ def get_config():
         page_id = input('请输入数据库id：')
         token = input('请输入机器人token：')
         index_name = input("请输入生成序号所在的属性名：")
-        group_name = input("请输入分组的属性名：")  # 为空即不分类
-        group = input("请输入分组的组名：")
+        group_name = input("请输入分组的属性名：")  # 为空即不分组
+        if group_name != '':
+            group = input("请输入分组的组名：")
+        else:
+            group = ''
 
         dict={"page_id":page_id,"token":token,"index_name":index_name,"group_name":group_name,"group":group}
         with open('./clc/key/target.json', 'w', encoding='utf-8') as fp:
@@ -126,10 +135,9 @@ if __name__ == '__main__':
         post_notion(count,config[0],config[1],config[2],config[3],config[4])
     except Exception as e:
         print(e)
-    #
+
     finally:
         check = input('请按回车确认并结束程序')
-
-        if check != '谁都不会打出来的一行字':
+        if check != '谁都不会打出来，打出来也没用的一行字':
 
             print('\n程序结束，感谢使用！' )

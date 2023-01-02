@@ -1,15 +1,14 @@
 # 描述
 由于notion的database无法批量生成带序号的子页面，在某些严格的应用场景下属于痛点，因此用python写了一个做这件事的小工具，并做了简单的打包。
-
+**注意：当前版本仅支持database对象，即只有且只能有一个数据库的页面**
 # 使用步骤
 ## 第一步：获得目标database的id
-<font color =#FF3030>当前版本仅支持database对象，即只有且只能有一个数据库的页面</font>
 ### 1.获得database的url链接
 网页端直接在地址栏获得database的url
 桌面端和移动端需要通过界面右上角三个点下的Copy link复制得到url
 ### 2.提取url链接中页面的id
-https：//www.notion.so/页面的id?v=xxxxxxxxxx
-从url链接截取下来即可
+![image.png](https://yoaken-1316330335.cos.ap-chongqing.myqcloud.com/markdownPic/202301030532401.png)
+把”?v=“之前的这一段从url链接截取下来即可
 
 ## 第二步：创建可以操作notion的integration并获得其token令牌
 以下操作都在notion的intergration管理页面进行[点击前往该页面](https://www.notion.so/my-integrations)
@@ -34,6 +33,7 @@ https：//www.notion.so/页面的id?v=xxxxxxxxxx
 * （2）intergration的token
 * （3）序号所在的属性名
 * （4）分组的属性名，不填就表示不分组
+* （5）如果分组，还需要填组名
 #### 输入要创建的页面数量
 #### 完成创建后，在命令行按回车键(Enter)确认结束
 
