@@ -16,7 +16,7 @@
 ## 第二步：创建可以操作notion的integration并获得其token令牌
 以下操作都在notion的intergration管理页面进行[点击前往该页面](https://www.notion.so/my-integrations)
 ### 1.创建integration
-创建intergration，并注意要有插入新内容(Insert content)的权限
+创建intergration，并确认要有插入新内容(Insert content)的权限
 
 ![image.png](https://yoaken-1316330335.cos.ap-chongqing.myqcloud.com/markdownPic/202301030632968.png)
 
@@ -55,4 +55,4 @@
 后续可能会开发本地保存多个配置文件，当前版本要实现保存多个配置文件并选择使用其中某一个需要手动进行切换：把要使用的配置文件改名为target，其他配置文件改为另外的文件名。
 ## GUI程序
 如果未来实现了多配置文件，那么开发GUI也应该提上日程。有了图形界面之后操作就能更加简洁，比如就不用每次运行程序都询问是否修改配置文件，再比如可以直接选择使用哪个配置文件。
-问题在于开发GUI程序导入PyQt库之后这个python程序的大小不可避免的膨胀，也就不再轻量化。当然这仅仅只是一个忧虑，具体还是要看结果到底如何。
+问题在于开发GUI程序导入PyQt库之后这个python程序的大小不可避免的膨胀，也就不再轻量化。当然这仅仅只是当下的一个忧虑，具体还是要看结果到底如何。
