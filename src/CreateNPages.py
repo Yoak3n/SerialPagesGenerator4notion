@@ -57,7 +57,7 @@ def post_notion(count, index_name, database_id, token, group_name, group):
                     continue
             except requests.exceptions.ConnectionError :
 
-                print("\n         \033[0;93;101m过于频繁的请求，正在等待重试...\033[0m")
+                print("\n\033[1;9;40m过于频繁的请求，正在等待重试...\033[0m")
                 number +=1
                 time.sleep(2)
                 continue
