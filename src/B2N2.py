@@ -64,8 +64,6 @@ def get_partName(bid):
 
                 result = result.split('=',1)[1]
                 result = result.split(';(function(){var s;')[0]
-                with open('bili.json','w',encoding='utf-8') as fp:
-                    fp.write(result)
 
                 js = json.loads(result)
 
@@ -77,24 +75,26 @@ def get_partName(bid):
                 else:
                     videoName = videoName
                 temp_list = jsonpath.jsonpath(js, '$..pages..part')
+                
+                coverUrl = jsonpath.jsonpath(js, '$.videoData.pic')[0]
 
                 partName_list = temp_list
 
                 partName_str = '\n'.join(partName_list)
-
+                
                 with open(f"./clc/list/{videoName}分集标题.txt", 'w', encoding='utf-8') as fp:
                     fp.writelines(partName_str)
 
                 print(f'已生成{videoName}的分集标题文件\n')
+                
 
-                return videoName, partName_list
+                return videoName, partName_list, coverUrl
             else:
                 time.sleep(1)
                 continue
         except requests.exceptions.ConnectionError:
             time.sleep(1)
             continue
-
 
 def post_notion(total,part,database_id, token):
     count = len(part)
@@ -162,12 +162,11 @@ if __name__ == '__main__':
 
     try:
         page_id,token=check_config()
-
         bid = input("请输入分集视频的BV号：")
         if bid != '':
-            videoname ,partname_list = get_partName(bid)
+            videoname ,partname_list, coverUrl = get_partName(bid)
             post_notion(videoname, partname_list, page_id, token)
-
+            print(f'{videoname}的封面链接是：{coverUrl}')
         else:
             print('请检查是否输入正确的BV号')
 
