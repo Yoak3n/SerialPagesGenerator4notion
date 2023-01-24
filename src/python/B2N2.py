@@ -7,7 +7,8 @@ import time
 import re
 
 from tqdm import tqdm
-import requests,lxml.etree,jsonpath
+import requests, lxml.etree, jsonpath
+
 
 def check_config():
     if not os.path.exists('./clc'):
@@ -35,7 +36,6 @@ def check_config():
             page_id = config_data["pageid"]
             token = config_data["token"]
 
-
     else:
         page_id = input('请输入数据库id：')
         token = input('请输入机器人token：')
@@ -44,12 +44,13 @@ def check_config():
             config_data = json.dumps(config_data_dict)
             fp.write(config_data)
 
-    return page_id,token
+    return page_id, token
+
 
 def get_partName(bid):
     result = re.match('https://www.bilibili.com/', bid)
     if result is None:
-        url =  f'https://www.bilibili.com/video/{bid}/?p=1'
+        url = f'https://www.bilibili.com/video/{bid}/?p=1'
     else:
         url = bid
     while True:
@@ -62,7 +63,7 @@ def get_partName(bid):
                 tree = lxml.etree.HTML(content)
                 result = tree.xpath('//script[4]/text()')[0]
 
-                result = result.split('=',1)[1]
+                result = result.split('=', 1)[1]
                 result = result.split(';(function(){var s;')[0]
 
                 js = json.loads(result)
@@ -75,18 +76,17 @@ def get_partName(bid):
                 else:
                     videoName = videoName
                 temp_list = jsonpath.jsonpath(js, '$..pages..part')
-                
+
                 coverUrl = jsonpath.jsonpath(js, '$.videoData.pic')[0]
 
                 partName_list = temp_list
 
                 partName_str = '\n'.join(partName_list)
-                
+
                 with open(f"./clc/list/{videoName}分集标题.txt", 'w', encoding='utf-8') as fp:
                     fp.writelines(partName_str)
 
                 print(f'已生成{videoName}的分集标题文件\n')
-                
 
                 return videoName, partName_list, coverUrl
             else:
@@ -96,7 +96,8 @@ def get_partName(bid):
             time.sleep(1)
             continue
 
-def post_notion(total,part,database_id, token):
+
+def post_notion(total, part, database_id, token):
     count = len(part)
     bar = tqdm(total=count)
     number = 0
@@ -111,7 +112,6 @@ def post_notion(total,part,database_id, token):
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token,
     }
-
 
     for i in range(count):
 
@@ -147,24 +147,21 @@ def post_notion(total,part,database_id, token):
                     print(f"\033[0;91;40m上传notion请求重试超过10次，程序终止，请检查配置和网络！\033[0m")
                     break
 
-
-
     bar.set_description_str('上传notion已完成')
     bar.close()
-    if number>0:
+    if number > 0:
         print(f'总计上传错误{number}次')
     else:
         print('\n上传零错误')
 
 
-
 if __name__ == '__main__':
 
     try:
-        page_id,token=check_config()
+        page_id, token = check_config()
         bid = input("请输入分集视频的BV号：")
         if bid != '':
-            videoname ,partname_list, coverUrl = get_partName(bid)
+            videoname, partname_list, coverUrl = get_partName(bid)
             post_notion(videoname, partname_list, page_id, token)
             print(f'{videoname}的封面链接是：{coverUrl}')
         else:
@@ -176,5 +173,4 @@ if __name__ == '__main__':
     finally:
         check = input('请按回车确认并结束程序')
         if check != '谁都不会打出来的一行字':
-
             print('程序结束，感谢使用！')
