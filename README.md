@@ -15,15 +15,9 @@
 
 把“?v=”之前的这一段从url链接截取下来即可
 
-把“?v=”之前的这一段从url链接截取下来即可
-
 ## 第二步：创建可以操作notion的integration并获得其token令牌
 以下操作都在notion的intergration管理页面进行[点击前往该页面](https://www.notion.so/my-integrations)
 ### 1.创建integration
-创建intergration，并确认要有插入新内容(Insert content)的权限
-
-![image.png](https://yoaken-1316330335.cos.ap-chongqing.myqcloud.com/markdownPic/202301030632968.png)
-
 创建intergration，并确认要有插入新内容(Insert content)的权限
 
 ![image.png](https://yoaken-1316330335.cos.ap-chongqing.myqcloud.com/markdownPic/202301030632968.png)
