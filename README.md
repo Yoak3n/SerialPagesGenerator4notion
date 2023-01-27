@@ -9,12 +9,12 @@
 ## 第一步：获得目标database的id
 ### 1.获得database的url链接
 网页端直接在地址栏获得database的url
+
 桌面端和移动端需要通过界面右上角三个点下的Copy link复制得到url
 ### 2.提取url链接中页面的id
 ![image.png](https://yoaken-1316330335.cos.ap-chongqing.myqcloud.com/markdownPic/202301030532401.png)
 
 把“?v=”之前的这一段从url链接截取下来即可
-
 
 ## 第二步：创建可以操作notion的integration并获得其token令牌
 以下操作都在notion的intergration管理页面进行[点击前往该页面](https://www.notion.so/my-integrations)
