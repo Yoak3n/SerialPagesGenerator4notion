@@ -5,14 +5,17 @@
 import json
 import sys
 import os
-import time
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
-import B2N2
+import re
+import jsonpath
+import requests
+from lxml import etree
+import time
 
 
 class MyThread(QtCore.QThread):
+    postSignal = QtCore.pyqtSignal(str)
     finishedSignal = QtCore.pyqtSignal(str)
 
     def __init__(self, url, pageID, token):
@@ -21,10 +24,101 @@ class MyThread(QtCore.QThread):
         self.pageID = pageID
         self.token = token
 
+    def get_partName(self):
+        result = re.match('https://www.bilibili.com/', self.url)
+        if result is None:
+            url = f'https://www.bilibili.com/video/{self.url}/?p=1'
+        else:
+            url = self.url
+        while True:
+            try:
+                response = requests.get(url)
+
+                if response.status_code == 200:
+                    content = response.text
+                    tree = etree.HTML(content)
+                    result = tree.xpath('//script[4]/text()')[0]
+
+                    result = result.split('=', 1)[1]
+                    result = result.split(';(function(){var s;')[0]
+
+                    js = json.loads(result)
+
+                    videoName = jsonpath.jsonpath(js, '$.videoData.title')[0]
+                    if '/' in videoName:
+                        videoName = videoName.replace('/', '／')
+                    elif '\\' in videoName:
+                        videoName = videoName.replace('\\', '＼')
+                    else:
+                        videoName = videoName
+                    partName_list = jsonpath.jsonpath(js, '$..pages..part')
+                    coverUrl = jsonpath.jsonpath(js, '$.videoData.pic')[0]
+
+                    partName_str = '\n'.join(partName_list)
+
+                    with open(f"./clc/list/{videoName}分集标题.txt", 'w', encoding='utf-8') as fp:
+                        fp.writelines(partName_str)
+
+                    print(f'已生成{videoName}的分集标题文件\n')
+
+                    return videoName, partName_list, coverUrl
+                else:
+                    time.sleep(1)
+                    continue
+            except requests.exceptions.ConnectionError:
+                time.sleep(1)
+                continue
+
+    def postNotion(self, videoName, partName_list, database_id, token):
+        count = len(partName_list)
+        number = 0
+        url = "https://api.notion.com/v1/pages"
+        headers = {
+            "Accept": "application/json",
+            "Notion-Version": "2022-06-28",
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token,
+        }
+
+        for i in range(count):
+            partName = partName_list[i]
+            while True:
+                body = {
+                    "parent": {
+                        "type": "database_id",
+                        "database_id": database_id
+                    },
+                    "properties": {
+                        "Episode": {"number": i + 1},
+                        "EpisodeName": {"title": [{"type": "text", "text": {"content": partName}}]},
+                        "Name": {"select": {"name": videoName}},
+                    }
+                }
+                try:
+                    r = requests.post(url, json=body, headers=headers)
+                    if r.status_code == 200:
+                        self.postSignal.emit(f"<u>《{partName}》</u>上传成功")
+                        break
+                    else:
+                        number += 1
+                        time.sleep(2)
+                        continue
+                except requests.exceptions.ConnectionError:
+                    if number <= 10:
+                        number += 1
+                        time.sleep(1)
+                        continue
+                    else:
+                        break
+        if number > 0:
+            print(f'总计上传错误{number}次')
+        else:
+            print('\n上传零错误')
+
     def run(self):
-        videoName, partName_list, coverUrl = B2N2.get_partName(self.url)
-        B2N2.post_notion(videoName, partName_list, self.pageID, self.token)
-        self.finishedSignal.emit(f"视频《{videoName}》的封面链接为：{coverUrl}")
+        videoName, partName_list, coverUrl = self.get_partName()
+        self.postNotion(videoName, partName_list, self.pageID, self.token)
+        self.finishedSignal.emit(f"<div><hr>视频《{videoName}》的封面链接为：<font color=blue>{coverUrl}</div>")
 
 
 class myUI(QtWidgets.QWidget):
@@ -42,10 +136,10 @@ class myUI(QtWidgets.QWidget):
         self.setUpUI()
         self.loadConfig()
 
-        self.child = subUI()
+        self.child = None
 
     def setUpUI(self):
-        self.resize(684, 425)
+        self.resize(800, 425)
         self.setWindowTitle("B2N2")
 
         horizontalLayout_1 = QtWidgets.QHBoxLayout()
@@ -66,9 +160,9 @@ class myUI(QtWidgets.QWidget):
         horizontalLayout_3_1.addWidget(self.label_3, 0)
         horizontalLayout_3_1.addWidget(self.jsonBox, 2)
         self.label_4 = QtWidgets.QLabel()
-        self.label_4.setFont(QtGui.QFont("Arial", 10))
+        self.label_4.setFont(QtGui.QFont("Arial", 11))
         self.label_4.setObjectName("label_4")
-        self.label_4.setText("视频链接：")
+        self.label_4.setText("视频链接/<br>bv号：")
         self.urlEdit = QtWidgets.QLineEdit()
         self.urlEdit.setPlaceholderText("输入目标视频地址")
         self.urlEdit.setFont(QtGui.QFont("Arial", 15))
@@ -96,7 +190,7 @@ class myUI(QtWidgets.QWidget):
         self.runLabel = QtWidgets.QLabel()
         self.runLabel.setText("运行记录")
         self.runShower = QtWidgets.QTextBrowser()
-        self.runShower.setText("程序开始运行...")
+        self.runShower.setText("程序开始运行...<hr>")
         verticalLayout_2_3 = QtWidgets.QVBoxLayout()
         verticalLayout_2_3.setContentsMargins(10, 10, 10, 10)
         verticalLayout_2_3.addWidget(self.runLabel)
@@ -104,7 +198,7 @@ class myUI(QtWidgets.QWidget):
 
         horizontalLayout_1.addLayout(verticalLayout_2_1)
         horizontalLayout_1.addLayout(verticalLayout_2_3)
-
+        horizontalLayout_1.setStretch(1, 1)
         self.setLayout(horizontalLayout_1)
 
     def loadConfig(self):
@@ -120,8 +214,9 @@ class myUI(QtWidgets.QWidget):
         configs = os.listdir('./clc/key/')
         if len(configs) > 0:
             self.jsonBox.addItems(configs)
+            self.runShower.append("<font color=green>本地存在配置，请选择配置</font>")
         else:
-            self.runShower.append("本地未找到配置文件，请创建配置")
+            self.runShower.append("<font color=red>本地未找到配置文件，请创建配置</font>")
         self.jsonBox.addItem("创建新配置")
 
     def startApp(self):
@@ -136,14 +231,23 @@ class myUI(QtWidgets.QWidget):
             url = self.urlEdit.text()
             pageID = configData["pageid"]
             token = configData["token"]
-            self.thread=MyThread(url, pageID, token)
+            self.thread = MyThread(url, pageID, token)
             self.runShower.append("任务进行中...")
             self.thread.start()
             self.thread.finishedSignal.connect(self.finishedFunc)
+            self.thread.postSignal.connect(self.showDetails)
+
+    def showDetails(self, val):
+        self.runShower.append(val)
 
     def createConfig(self):
+        self.child = subUI()
         self.child.show()
-        self.jsonBox.addItem(self.child.line3.text())
+        self.child.commitSignal.connect(self.loadAgain)
+
+    def loadAgain(self, val):
+        self.runShower.append(val)
+        self.jsonBox.addItem(self.child.line3.text() + ".json")
 
     def stopApp(self):
         self.thread.terminate()
@@ -151,7 +255,7 @@ class myUI(QtWidgets.QWidget):
 
     def finishedFunc(self, val):
         self.runShower.append(val)
-        self.runShower.append("任务完成!!!")
+        self.runShower.append("<b>任务完成!!!</b>")
 
 
 class subUI(QtWidgets.QWidget):
@@ -217,3 +321,6 @@ if __name__ == '__main__':
     window = myUI()
     window.show()
     sys.exit(app.exec_())
+
+
+
