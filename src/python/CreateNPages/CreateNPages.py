@@ -6,6 +6,7 @@ import time, os, json
 from tqdm import tqdm
 import requests
 
+
 def post_notion(count, index_name, database_id, token, group_name, group):
     print('')
     # 创建进度条对象
@@ -69,15 +70,16 @@ def post_notion(count, index_name, database_id, token, group_name, group):
     else:
         print('\n上传过程无错误')
 
-def get_config():
-    if not os.path.exists('./clc'):
-        os.mkdir('./clc')
-        os.mkdir('./clc/key')
-    else:
-        if not os.path.exists('./clc/key'):
-            os.mkdir('./clc/key')
 
-    exist = os.path.exists('./clc/key/target.json')
+def get_config():
+    if not os.path.exists('../clc'):
+        os.mkdir('../clc')
+        os.mkdir('../clc/key')
+    else:
+        if not os.path.exists('../clc/key'):
+            os.mkdir('../clc/key')
+
+    exist = os.path.exists('../clc/key/target.json')
     # 如果没有本地配置文件
     if exist :
         check = input("是否重新配置文件？y/n")
@@ -89,7 +91,7 @@ def get_config():
         noedit = False
     # 如果不需要重新配置
     if noedit:
-        with open('./clc/key/target.json','r',encoding='utf-8') as fp:
+        with open('../clc/key/target.json', 'r', encoding='utf-8') as fp:
             js = json.load(fp)
             page_id = js["page_id"]
             token = js["token"]
@@ -108,7 +110,7 @@ def get_config():
         else :
             group = ''
         dict = {"page_id": page_id, "token": token, "index_name": index_name, "group_name": group_name, "group": group}
-        with open('./clc/key/target.json', 'w', encoding='utf-8') as fp:
+        with open('../clc/key/target.json', 'w', encoding='utf-8') as fp:
             fp.write(json.dumps(dict))
     else:
         print("未找到配置文件，请根据提示依次输入")
@@ -121,18 +123,19 @@ def get_config():
         else:
             group = ''
 
-        dict={"page_id":page_id,"token":token,"index_name":index_name,"group_name":group_name,"group":group}
-        with open('./clc/key/target.json', 'w', encoding='utf-8') as fp:
+        dict = {"page_id":page_id,"token":token,"index_name":index_name,"group_name":group_name,"group":group}
+        with open('../clc/key/target.json', 'w', encoding='utf-8') as fp:
             fp.write(json.dumps(dict))
 
-    return index_name,page_id,token,group_name,group
+    return index_name, page_id, token, group_name, group
+
 
 if __name__ == '__main__':
     try:
         config = get_config()
 
         count = int(input("请输入要创建的数据个数："))
-        post_notion(count,config[0],config[1],config[2],config[3],config[4])
+        post_notion(count, config[0], config[1], config[2], config[3], config[4])
     except Exception as e:
         print(e)
 
@@ -140,4 +143,4 @@ if __name__ == '__main__':
         check = input('请按回车确认并结束程序')
         if check != '谁都不会打出来，打出来也没用的一行字':
 
-            print('\n程序结束，感谢使用！' )
+            print('\n程序结束，感谢使用！')

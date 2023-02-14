@@ -5,13 +5,28 @@
 import json
 import sys
 import os
+import time
+import threading
+import re
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-import re
 import jsonpath
 import requests
 from lxml import etree
-import time
+
+
+class PostThreads(threading.Thread):
+    def __init__(self, func, args):
+        threading.Thread.__init__(self)
+        self.func = func
+        self.args = args
+        self.__flag = threading.Event()  # 用于暂停线程的标识
+        self.__flag.set()  # 设置为True
+        self.__running = threading.Event()  # 用于停止线程的标识
+        self.__running.set()  # 将running设置为True
+
+    def run(self) -> None:
+        self.func(*self.args)
 
 
 class MyThread(QtCore.QThread):
@@ -68,10 +83,28 @@ class MyThread(QtCore.QThread):
             except requests.exceptions.ConnectionError:
                 time.sleep(1)
                 continue
+    
+    def postNotion(self, url, body, headers, partName):
+        while True:
+            self.postSignal.emit(f"<u>《{partName}》</u>正在上传...")
+            try:
+                r = requests.post(url, json=body, headers=headers)
+                if r.status_code == 200:
+                # if r.status_code == 200 or r.status_code == 201 or r.status_code == 202 or r.status_code == 204:
+                    self.postSignal.emit(f"<u>《{partName}》</u>上传成功")
+                    return
+                else:
+                    self.postSignal.emit(f"<font color=red><u>《{partName}》</u>上传失败正在重试:<br>状态码<b>{r.status_code}</b></font>")
+            except Exception as e:
+                self.postSignal.emit(f"<font color=red><u>《{partName}》</u>上传失败正在重试:<br><b>{e}</b></font>")
+                time.sleep(1)
+                continue
 
-    def postNotion(self, videoName, partName_list, database_id, token):
+    def run(self):
+        videoName, partName_list, coverUrl = self.get_partName()
+        token = self.token
+        database_id = self.pageID
         count = len(partName_list)
-        number = 0
         url = "https://api.notion.com/v1/pages"
         headers = {
             "Accept": "application/json",
@@ -79,51 +112,32 @@ class MyThread(QtCore.QThread):
             "Content-Type": "application/json",
             "Authorization": "Bearer " + token,
         }
-
+        totalThreads = []
         for i in range(count):
             partName = partName_list[i]
-            while True:
-                body = {
-                    "parent": {
-                        "type": "database_id",
-                        "database_id": database_id
-                    },
-                    "properties": {
-                        "Episode": {"number": i + 1},
-                        "EpisodeName": {"title": [{"type": "text", "text": {"content": partName}}]},
-                        "Name": {"select": {"name": videoName}},
-                    }
+            body = {
+                "parent": {
+                    "type": "database_id",
+                    "database_id": database_id
+                },
+                "properties": {
+                    "Episode": {"number": i + 1},
+                    "EpisodeName": {"title": [{"type": "text", "text": {"content": partName}}]},
+                    "Name": {"select": {"name": videoName}},
                 }
-                try:
-                    r = requests.post(url, json=body, headers=headers)
-                    if r.status_code == 200:
-                        self.postSignal.emit(f"<u>《{partName}》</u>上传成功")
-                        break
-                    else:
-                        number += 1
-                        time.sleep(2)
-                        continue
-                except requests.exceptions.ConnectionError:
-                    if number <= 10:
-                        number += 1
-                        time.sleep(1)
-                        continue
-                    else:
-                        break
-        if number > 0:
-            print(f'总计上传错误{number}次')
-        else:
-            print('\n上传零错误')
-
-    def run(self):
-        videoName, partName_list, coverUrl = self.get_partName()
-        self.postNotion(videoName, partName_list, self.pageID, self.token)
-        self.finishedSignal.emit(f"<div><hr>视频《{videoName}》的封面链接为：<font color=blue>{coverUrl}</div>")
+            }
+            single_post = PostThreads(self.postNotion, (url, body, headers, partName))
+            totalThreads.append(single_post)
+            single_post.start()
+        for t in totalThreads:
+            t.join()
+        self.finishedSignal.emit(f"<hr>视频《{videoName}》的封面链接为：<font color=blue>{coverUrl}</font>")
 
 
-class myUI(QtWidgets.QWidget):
+class MyUI(QtWidgets.QWidget):
     def __init__(self):
-        super(myUI, self).__init__()
+        super(MyUI, self).__init__()
+        self.configButton = None
         self.thread = None
         self.stopButton = None
         self.startButton = None
@@ -144,7 +158,6 @@ class myUI(QtWidgets.QWidget):
 
         horizontalLayout_1 = QtWidgets.QHBoxLayout()
         verticalLayout_2_1 = QtWidgets.QVBoxLayout()
-        verticalLayout_2_3 = QtWidgets.QVBoxLayout()
         horizontalLayout_3_1 = QtWidgets.QHBoxLayout()
         horizontalLayout_3_2 = QtWidgets.QHBoxLayout()
         horizontalLayout_1.setContentsMargins(0, 0, 0, 0)
@@ -190,7 +203,7 @@ class myUI(QtWidgets.QWidget):
         self.runLabel = QtWidgets.QLabel()
         self.runLabel.setText("运行记录")
         self.runShower = QtWidgets.QTextBrowser()
-        self.runShower.setText("程序开始运行...<hr>")
+        self.runShower.setText("程序开始运行...")
         verticalLayout_2_3 = QtWidgets.QVBoxLayout()
         verticalLayout_2_3.setContentsMargins(10, 10, 10, 10)
         verticalLayout_2_3.addWidget(self.runLabel)
@@ -202,16 +215,16 @@ class myUI(QtWidgets.QWidget):
         self.setLayout(horizontalLayout_1)
 
     def loadConfig(self):
-        if not os.path.exists('./clc'):
-            os.mkdir('./clc')
-            os.mkdir('./clc/key')
-            os.mkdir('./clc/list')
+        if not os.path.exists('../clc'):
+            os.mkdir('../clc')
+            os.mkdir('../clc/key')
+            os.mkdir('../clc/list')
         else:
-            if not os.path.exists('./clc/key'):
-                os.mkdir('./clc/key')
-            if not os.path.exists('./clc/list'):
-                os.mkdir('./clc/list')
-        configs = os.listdir('./clc/key/')
+            if not os.path.exists('../clc/key'):
+                os.mkdir('../clc/key')
+            if not os.path.exists('../clc/list'):
+                os.mkdir('../clc/list')
+        configs = os.listdir('../clc/key/')
         if len(configs) > 0:
             self.jsonBox.addItems(configs)
             self.runShower.append("<font color=green>本地存在配置，请选择配置</font>")
@@ -232,7 +245,7 @@ class myUI(QtWidgets.QWidget):
             pageID = configData["pageid"]
             token = configData["token"]
             self.thread = MyThread(url, pageID, token)
-            self.runShower.append("任务进行中...")
+            self.runShower.append("任务进行中...<hr>")
             self.thread.start()
             self.thread.finishedSignal.connect(self.finishedFunc)
             self.thread.postSignal.connect(self.showDetails)
@@ -318,7 +331,7 @@ class subUI(QtWidgets.QWidget):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    window = myUI()
+    window = MyUI()
     window.show()
     sys.exit(app.exec_())
 

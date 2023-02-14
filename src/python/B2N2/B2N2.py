@@ -11,15 +11,15 @@ import requests, lxml.etree, jsonpath
 
 
 def check_config():
-    if not os.path.exists('./clc'):
-        os.mkdir('./clc')
-        os.mkdir('./clc/key')
-        os.mkdir('./clc/list')
+    if not os.path.exists('../clc'):
+        os.mkdir('../clc')
+        os.mkdir('../clc/key')
+        os.mkdir('../clc/list')
     else:
-        if not os.path.exists('./clc/key'):
-            os.mkdir('./clc/key')
-        if not os.path.exists('./clc/list'):
-            os.mkdir('./clc/list')
+        if not os.path.exists('../clc/key'):
+            os.mkdir('../clc/key')
+        if not os.path.exists('../clc/list'):
+            os.mkdir('../clc/list')
     exist = os.path.exists('./clc/key/mykey.json')
     if exist:
         check = input("是否使用新配置文件？y/n")
