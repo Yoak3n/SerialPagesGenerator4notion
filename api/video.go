@@ -1,19 +1,18 @@
 package api
 
 import (
-	"bytes"
+	"b2n3/backend/model"
+	"b2n3/backend/network"
+	"b2n3/package/util"
 	"errors"
 	"fmt"
-	"github.com/tidwall/gjson"
 	"io"
 	"log"
-	"math"
 	"net/http"
-	"net/url"
 	"strconv"
-	"strings"
-)
 
+	"github.com/tidwall/gjson"
+)
 
 var video *VideoInfo
 
@@ -27,8 +26,9 @@ type VideoInfo struct {
 	VideoTime int64    `json:"video_time"`
 }
 
+// GetVideoInfo
 func NewVideoInfo(in string) *VideoInfo {
-	idBytes, typeID := checkVideoID(in)
+	idBytes, typeID := util.CheckVideoID(in)
 	if idBytes == nil {
 		log.Fatal("请检查输入是否正确")
 		return nil
@@ -39,11 +39,11 @@ func NewVideoInfo(in string) *VideoInfo {
 		// base 参数的意思是进制
 		video.AID, _ = strconv.ParseInt(string(idBytes), 10, 64)
 
-		video.BvID = aid2bvid(video.AID)
+		video.BvID = util.Aid2bvid(video.AID)
 		log.Println("bvid", video.BvID)
 	case 1:
 		video.BvID = string(idBytes)
-		video.AID = bvid2aid(video.BvID)
+		video.AID = util.Bvid2aid(video.BvID)
 		log.Println("aid", video.AID)
 	default:
 		log.Fatal("视频数据类型错误")
@@ -61,7 +61,7 @@ func NewVideoInfo(in string) *VideoInfo {
 	return video
 }
 
-func GetVideoInfo()*VideoInfo{
+func GetVideoInfo() *VideoInfo {
 	return video
 }
 
@@ -79,7 +79,7 @@ func (v *VideoInfo) getVideoTitle() error {
 	jsonResult := gjson.ParseBytes(all)
 
 	code := jsonResult.Get("code").Int()
-	
+
 	seasonDisplay := jsonResult.Get("data.is_season_display").Bool()
 	v.Name = jsonResult.Get("data.title").String()
 	v.Cover = jsonResult.Get("data.pic").String()
@@ -87,12 +87,12 @@ func (v *VideoInfo) getVideoTitle() error {
 		log.Fatalln("请求错误")
 		return err
 	}
-	if seasonDisplay{
+	if seasonDisplay {
 		episodes := jsonResult.Get("data.ugc_season.sections").Array()[0].Get("episodes").Array()
 		for i := 0; i < len(episodes); i++ {
 			v.Titles = append(v.Titles, episodes[i].Get("title").String())
 		}
-	}else{
+	} else {
 		pages := jsonResult.Get("data.pages").Array()
 		for i := 0; i < len(pages); i++ {
 			v.Titles = append(v.Titles, pages[i].Get("part").String())
@@ -122,94 +122,61 @@ func (v *VideoInfo) getVideoData() error {
 	return nil
 }
 
-func extractID(input string) ([]byte, bool) {
-	/*
-		返回值为获取到的真实视频ID及是否为av号
-	*/
-	vid := []byte(input)
-	prefix := [][]byte{[]byte("BV"), []byte("av")}
-	var id []byte
-	ok := false
+// SubmitVideoInfo
 
-	// 如果是BV号
-	if bytes.HasPrefix(vid, prefix[0]) {
-		id, ok = bytes.CutPrefix(vid, prefix[0])
-		if ok {
-			fmt.Println("有BV前缀")
-			return id, false
-		}
-		// 如果是av号
-	} else if bytes.HasPrefix(vid, prefix[1]) {
-		id, ok = bytes.CutPrefix(vid, prefix[1])
-		if ok {
-			log.Println("有av前缀", id)
-			return id, true
-		}
-	}
-	// 如果没有前缀标识，那么直接粗略检查是否是纯数字
-	if _, err := strconv.Atoi(string(vid)); err == nil {
-		return vid, true
-	} else {
-		return vid, false
-	}
+func SumbitVideo() {
+	datas := initVideoBody()
+	network.SubmitVideo(datas)
 }
 
-func checkVideoID(target string) ([]byte, int) {
-	id := ""
-	if strings.HasPrefix(target, "https://www.bilibili.com/video") {
-		uri, err := url.Parse(target)
-		if err != nil {
-			return nil, -1
+func initVideoBody() (datas []*model.Data) {
+	parent := &model.Parent{
+		Type:       "database_id",
+		DatabaseID: "b2n3",
+	}
+
+	for episode, episodeName := range video.Titles {
+		properties := &model.Properties{
+			Episode: model.Episode{
+				Number: episode + 1,
+			},
+			EpisodeName: *genEpisodeName(&episodeName),
+			Name: model.Name{
+				Select: struct {
+					Name string "json:\"name\""
+				}{
+					Name: video.Name,
+				},
+			},
 		}
-		id = strings.Split(uri.Path, "/")[2]
-	} else {
-		id = target
+
+		data := &model.Data{
+			Parent:     *parent,
+			Properties: *properties,
+		}
+
+		datas = append(datas, data)
 	}
-	tid, isAv := extractID(id)
-	log.Println(string(tid), isAv)
-	if isAv {
-		return tid, 0
-	} else {
-		return tid, 1
-	}
+
+	return
+
 }
 
-const (
-	table string = "fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF"
-	xor   int64  = 177451812
-	add   int64  = 8728348608
-)
-
-func bvid2aid(bvid string) int64 {
-	tr := make(map[byte]int)
-	for i := 0; i < 58; i++ {
-		tr[table[i]] = i
+func genEpisodeName(name *string) *model.EpisodeName {
+	titles := make([]model.Title, 0)
+	title := &model.Title{
+		Type: "text",
+		Text: struct {
+			Content string "json:\"content\""
+		}{
+			Content: *name,
+		},
 	}
-	s := [6]int{11, 10, 3, 8, 4, 6}
-	return func(x string) int64 {
-		var r int64
-		for i := 0; i < 6; i++ {
-			result := math.Pow(float64(58), float64(i))
-			st := tr[x[s[i]-2]]
-			r += int64(result) * int64(st)
-		}
-		return (r - add) ^ xor
-	}(bvid)
-}
+	titles = append(titles, *title)
 
-func aid2bvid(aid int64) string {
-	tr := make(map[byte]int)
-	for i := 0; i < 58; i++ {
-		tr[table[i]] = i
+	episodeName := &model.EpisodeName{
+		Title: titles,
 	}
-	s := [6]int{11, 10, 3, 8, 4, 6}
 
-	return func(x int64) string {
-		x = (x ^ xor) + add
-		r := []byte("BV1  4 1 7  ")
-		for i := 0; i < 6; i++ {
-			r[s[i]] = table[int(math.Mod(math.Floor(float64(x)/math.Pow(58, float64(i))), 58))]
-		}
-		return string(r)
-	}(aid)
+	return episodeName
 }

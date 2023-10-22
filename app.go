@@ -53,8 +53,11 @@ func (a *App) GetBangumiInfo(name string) *api.Bangumi {
 	return bangumi
 }
 
-func (a *App) SubmitInfo() {
-
+func (a *App) SubmitVideoInfo() {
+	api.SumbitVideo()
+}
+func (a *App) SubmitBangumiInfo() {
+	// api.SumbitBangumi()
 }
 
 func (a *App) ScanConfiguraitonFiles() (configs []string) {
@@ -72,9 +75,26 @@ func (a *App) CreateConfiguration(conf config.Config, name string) string {
 }
 
 func (a *App) GetCurrentConfiguration(name string) *config.Config {
-	err := config.LoadConfigFile(name)
+	conf, err := config.LoadConfigFile(name)
 	if err != nil {
 		return nil
 	}
-	return config.Conf
+	return conf
+}
+
+func (a *App) ChangeConfiguration(conf config.Config) int {
+	err := config.ModifyConfiguration(&conf)
+	if err != nil {
+		return 1
+	}
+	return 0
+}
+
+func (a *App) DeleteConfigurationFile(name string) int {
+	err := config.DeleteConfigurationFile(name)
+	if err != nil {
+		fmt.Println(err)
+		return 1
+	}
+	return 0
 }

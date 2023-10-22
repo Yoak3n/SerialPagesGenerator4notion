@@ -7,7 +7,7 @@
             <n-form-item :showLabel="false">
                 <n-space justify="space-evenly">
                     <n-button type="info" @click="getVideo" :loading="loading">搜索</n-button>
-                    <n-button type="success" @click="getVideo" :loading="loading">提交</n-button>
+                    <n-button type="success" @click="" :loading="loading">提交</n-button>
                 </n-space>
                 
             </n-form-item>
@@ -36,6 +36,10 @@ const getVideo = () => {
     })
 }
 
+
+const submitVideoInfo = () => {
+    
+}
 
 </script>
 

@@ -3,7 +3,11 @@
 import {config} from '../models';
 import {api} from '../models';
 
+export function ChangeConfiguration(arg1:config.Config):Promise<number>;
+
 export function CreateConfiguration(arg1:config.Config,arg2:string):Promise<string>;
+
+export function DeleteConfigurationFile(arg1:string):Promise<number>;
 
 export function GetBangumiInfo(arg1:string):Promise<api.Bangumi>;
 
@@ -15,4 +19,4 @@ export function Greet(arg1:string):Promise<string>;
 
 export function ScanConfiguraitonFiles():Promise<Array<string>>;
 
-export function SubmitInfo():Promise<void>;
+export function SubmitVideoInfo(arg1:api.VideoInfo):Promise<void>;

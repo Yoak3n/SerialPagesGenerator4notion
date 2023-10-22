@@ -3,8 +3,10 @@ package config
 import (
 	"b2n3/package/util"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type Config struct {
@@ -35,24 +37,21 @@ func LoadOptions() []string {
 	return files
 }
 
-func LoadConfigFile(name string) error {
-	buf, err := os.ReadFile(fmt.Sprintf("%s/%s.json", configPath, name))
+func LoadConfigFile(name string) (*Config, error) {
+	buf, err := os.ReadFile(fmt.Sprintf("%s/%s.json", configPath, strings.TrimSuffix(name, ".json")))
 	if err != nil {
-		return err
+		return nil, err
 	}
-	err = json.Unmarshal(buf, &Conf)
+	conf := &Config{}
+	err = json.Unmarshal(buf, &conf)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return conf, nil
 }
 
-func ModifyConfiguration(config *Config, name string) error {
+func ModifyConfiguration(config *Config) error {
 	Conf = config
-	err := writeConfigFile(name)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -62,6 +61,14 @@ func CreateConfiguration(config *Config, name string) error {
 	err := writeConfigFile(name)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func DeleteConfigurationFile(name string) error {
+	err := os.Remove(fmt.Sprintf("%s/%s.json", configPath, strings.TrimSuffix(name, ".json")))
+	if err != nil {
+		return errors.New("删除配置文件失败")
 	}
 	return nil
 }
