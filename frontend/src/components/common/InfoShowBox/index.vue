@@ -2,8 +2,8 @@
     <div class="infoshow-wrapper">
         <div class="video-show" v-if="videoInfo">
             <div class="intro">
-                <div class="title">{{ videoInfo.name }}</div>
                 <img :src="videoInfo?.cover" />
+                <div class="title">{{ videoInfo.name }}</div>
             </div>
             
             <div class="cover-url">

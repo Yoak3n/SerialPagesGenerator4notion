@@ -3,6 +3,7 @@ package api
 import (
 	"b2n3/backend/model"
 	"b2n3/backend/network"
+	"b2n3/config"
 	"b2n3/package/util"
 	"errors"
 	"fmt"
@@ -124,15 +125,16 @@ func (v *VideoInfo) getVideoData() error {
 
 // SubmitVideoInfo
 
-func SumbitVideo() {
+func SumbitVideo() []*model.Data {
 	datas := initVideoBody()
 	network.SubmitVideo(datas)
+	return datas
 }
 
 func initVideoBody() (datas []*model.Data) {
 	parent := &model.Parent{
 		Type:       "database_id",
-		DatabaseID: "b2n3",
+		DatabaseID: config.Conf.DatabaseID,
 	}
 
 	for episode, episodeName := range video.Titles {

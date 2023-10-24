@@ -2,8 +2,11 @@ package main
 
 import (
 	"b2n3/api"
+	"b2n3/backend/model"
 	"b2n3/config"
+	"b2n3/package/logger"
 	"context"
+	"encoding/json"
 	"fmt"
 )
 
@@ -53,8 +56,12 @@ func (a *App) GetBangumiInfo(name string) *api.Bangumi {
 	return bangumi
 }
 
-func (a *App) SubmitVideoInfo() {
-	api.SumbitVideo()
+func (a *App) SubmitVideoInfo() []*model.Data {
+	datas := api.SumbitVideo()
+	r, _ := json.Marshal(datas)
+
+	logger.INFO.Println(string(r))
+	return datas
 }
 func (a *App) SubmitBangumiInfo() {
 	// api.SumbitBangumi()
@@ -84,6 +91,7 @@ func (a *App) GetCurrentConfiguration(name string) *config.Config {
 
 func (a *App) ChangeConfiguration(conf config.Config) int {
 	err := config.ModifyConfiguration(&conf)
+	logger.INFO.Println(config.Conf)
 	if err != nil {
 		return 1
 	}

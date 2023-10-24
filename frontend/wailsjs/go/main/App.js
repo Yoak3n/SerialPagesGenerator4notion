@@ -34,6 +34,10 @@ export function ScanConfiguraitonFiles() {
   return window['go']['main']['App']['ScanConfiguraitonFiles']();
 }
 
-export function SubmitVideoInfo(arg1) {
-  return window['go']['main']['App']['SubmitVideoInfo'](arg1);
+export function SubmitBangumiInfo() {
+  return window['go']['main']['App']['SubmitBangumiInfo']();
+}
+
+export function SubmitVideoInfo() {
+  return window['go']['main']['App']['SubmitVideoInfo']();
 }

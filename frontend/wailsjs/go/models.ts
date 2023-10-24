@@ -103,3 +103,155 @@ export namespace config {
 
 }
 
+export namespace model {
+	
+	export class Name {
+	    // Go type: struct { Name string "json:\"name\"" }
+	    select: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new Name(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.select = this.convertValues(source["select"], Object);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class Title {
+	    type: string;
+	    // Go type: struct { Content string "json:\"content\"" }
+	    text: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new Title(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.type = source["type"];
+	        this.text = this.convertValues(source["text"], Object);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class EpisodeName {
+	    title: Title[];
+	
+	    static createFrom(source: any = {}) {
+	        return new EpisodeName(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.title = this.convertValues(source["title"], Title);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class Episode {
+	    number: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Episode(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.number = source["number"];
+	    }
+	}
+	export class Data {
+	    // Go type: Episode
+	    Episode: any;
+	    // Go type: EpisodeName
+	    EpisodeName: any;
+	    // Go type: Name
+	    Name: any;
+	    type: string;
+	    database_id: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Data(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Episode = this.convertValues(source["Episode"], null);
+	        this.EpisodeName = this.convertValues(source["EpisodeName"], null);
+	        this.Name = this.convertValues(source["Name"], null);
+	        this.type = source["type"];
+	        this.database_id = source["database_id"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+}
+

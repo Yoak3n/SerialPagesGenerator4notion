@@ -11,9 +11,9 @@ type Parent struct {
 }
 
 type Properties struct {
-	Episode
-	EpisodeName
-	Name
+	Episode     Episode     `json:"Episode"`
+	EpisodeName EpisodeName `json:"EpisodeName"`
+	Name        Name        `json:"Name"`
 }
 
 type Episode struct {

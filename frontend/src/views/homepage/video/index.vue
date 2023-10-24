@@ -7,7 +7,7 @@
             <n-form-item :showLabel="false">
                 <n-space justify="space-evenly">
                     <n-button type="info" @click="getVideo" :loading="loading">搜索</n-button>
-                    <n-button type="success" @click="" :loading="loading">提交</n-button>
+                    <n-button type="success" @click="submitVideoInfo" :loading="loading">提交</n-button>
                 </n-space>
                 
             </n-form-item>
@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { NForm, NFormItem, NInput, NButton, NDivider,NSpace } from 'naive-ui';
-import { GetVideoInfo } from '../../../../wailsjs/go/main/App';
+import { GetVideoInfo, SubmitVideoInfo } from '../../../../wailsjs/go/main/App';
 import { api } from 'wailsjs/go/models';
 import { InfoShowBox } from '@/components/common/index'
 
@@ -38,7 +38,11 @@ const getVideo = () => {
 
 
 const submitVideoInfo = () => {
-    
+    loading.value = true
+    SubmitVideoInfo().then((datas)=> {
+        console.log(datas)
+        loading.value = false
+    })
 }
 
 </script>
