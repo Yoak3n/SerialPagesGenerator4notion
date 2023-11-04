@@ -1,5 +1,5 @@
 jsonpath==0.82
 lxml==4.9.1
 PyQt5==5.15.7
-requests==2.28.1
+requests==2.31.0
 tqdm==4.64.1
