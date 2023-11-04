@@ -2,8 +2,6 @@ package util
 
 import (
 	"bytes"
-	"fmt"
-	"log"
 	"math"
 	"net/url"
 	"strconv"
@@ -23,14 +21,12 @@ func ExtractID(input string) ([]byte, bool) {
 	if bytes.HasPrefix(vid, prefix[0]) {
 		id, ok = bytes.CutPrefix(vid, prefix[0])
 		if ok {
-			fmt.Println("有BV前缀")
 			return id, false
 		}
 		// 如果是av号
 	} else if bytes.HasPrefix(vid, prefix[1]) {
 		id, ok = bytes.CutPrefix(vid, prefix[1])
 		if ok {
-			log.Println("有av前缀", id)
 			return id, true
 		}
 	}
@@ -54,7 +50,6 @@ func CheckVideoID(target string) ([]byte, int) {
 		id = target
 	}
 	tid, isAv := ExtractID(id)
-	log.Println(string(tid), isAv)
 	if isAv {
 		return tid, 0
 	} else {

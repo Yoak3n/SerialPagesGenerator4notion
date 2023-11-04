@@ -33,6 +33,7 @@ func (c *PosterClients) GetClient(index int) {
 		c.status[index] <- 1
 	}(index)
 }
+
 func (c *PosterClients) loadBlanced() *http.Client {
 
 	select {

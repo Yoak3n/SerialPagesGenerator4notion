@@ -1,5 +1,5 @@
 import {RouteRecordRaw} from 'vue-router'
-
+import Setting from '@/views/setting/index.vue'
 
 const routes:RouteRecordRaw[] = [
     {
@@ -17,7 +17,7 @@ const routes:RouteRecordRaw[] = [
                 name:'bangumi'
             },{
                 path:'/setting',
-                component:()=>import('@/views/setting/index.vue'),
+                component:Setting,
                 name:'setting'
             }
 

@@ -1,80 +1,21 @@
-# 介绍
-由于notion的database无法批量生成带序号的子页面，在某些严格的应用场景下属于痛点，因此用python写了一个做这件事的小工具，并做了简单的打包。
+B2N3即 `bilibili to notion version 3`，是`serial pages generator for notion`项目下`B2N`的迭代版本，基于wails客户端GUI框架实现，仅支持Windows10即以上和Mac的PC端——使用系统自带的Webview2。
 
+**目前B2N3仅初步完成导入分p视频到notion数据库的功能，且运行尚不稳定，请酌情使用。**
 
-**注意：当前版本仅支持database对象，即只有且只能有一个数据库的页面**
-# 使用步骤
-## 第一步：获得目标database的id
-### 1.获得database的url链接
-网页端直接在地址栏获得database的url
+## 编译
 
-桌面端和移动端需要通过界面右上角三个点下的Copy link复制得到url
-### 2.提取url链接中页面的id
-![image.png](https://yoaken-1316330335.cos.ap-chongqing.myqcloud.com/markdownPic/202301030532401.png)
+```bash
+git clone https://github.com/Yoak3n/SerialPagesGenerator4notion.git
+cd SerialPagesGenerator4notion
+wails build
+```
 
-把“?v=”之前的这一段从url链接截取下来即可
+wails交叉编译暂未成功，如有需求可配置好相应环境（go+pnpm+wails）后自行编译
 
-## 第二步：创建可以操作notion的integration并获得其token令牌
-以下操作都在notion的intergration管理页面进行[点击前往该页面](https://www.notion.so/my-integrations)
-### 1.创建integration
-创建intergration，并确认要有插入新内容(Insert content)的权限
+## 运行
 
-![image.png](https://yoaken-1316330335.cos.ap-chongqing.myqcloud.com/markdownPic/202301030632968.png)
+运行程序后进入设置界面完成notion自动化相关配置，即可开始使用，此后每次上传前需再次确认配置内容。
 
-### 2.获取intergration的token令牌
-查看自己的intergration的相关信息，在密钥(Secrets)下查看(Show)并复制(Copy)该intergration的token令牌
+复制b站上某个分p视频的链接到视频标签页的输入框内，先`搜索`确认是否是对应的视频及其分p标题（目前这一步不要跳过！），再点击`提交`，等待一段时间后完成导入。
 
-![image.png](https://yoaken-1316330335.cos.ap-chongqing.myqcloud.com/markdownPic/202301030633303.png)
-
-## 第三步：确认database的相关配置
-### 1.指定控制当前页面的intergration
-回到database页面，点击右上角的三个小点，Add connections让刚刚创建好的intergration和这个页面连接起来，使之可以操作这个页面
-### 2.确认序号创建的属性properties
-该属性的类型必须是number，记住属性名
-### 3.如果需要分组，那么就确认分组的属性properties
-该属性的类型必须是select，记住属性名
-
-## 第四步：运行程序
-### 1.首次运行
-#### 初始化配置
-首次运行程序会在程序所在的目录下创建一个clc目录来收集程序生成的文件(ps：当前版本只在clc目录下创建key目录用来存放target.json配置文件)，程序会要求根据提示依次输入：
-* （1）目标database的id
-* （2）intergration的token
-* （3）序号所在的属性名
-* （4）分组的属性名，不填就表示不分组
-* （5）如果分组，还需要填组名
-#### 输入要创建的页面数量
-#### 完成创建后，在命令行按回车键(Enter)确认结束
-
-### 2.后续运行
-
-#### 是否修改配置文件
-程序会询问是否修改配置，输入y就会重写配置文件，不填就使用当前本地的配置
-# 开发想法（并非计划）
-- [x] 多配置文件  
-后续可能会开发本地保存多个配置文件，当前版本要实现保存多个配置文件并选择使用其中某一个需要手动进行切换：把要使用的配置文件改名为target，其他配置文件改为另外的文件名。
-- [x] GUI程序  
-如果未来实现了多配置文件，那么开发GUI也应该提上日程。有了图形界面之后操作就能更加简洁易懂，比如就不用每次运行程序都询问是否修改配置文件，再比如可以直接选择使用哪个配置文件。      
-问题在于开发GUI程序导入PyQt库之后这个python程序的大小不可避免的膨胀，也就不再轻量化。当然这仅仅只是当下的一个忧虑，具体还是要看结果到底如何。  
-- [ ] 并发上传   
-一个困扰许久的问题是：单线程上传的速度太慢了！其中既有**python性能的原因**，也有需要**保证每一条请求一定成功并且不能重复**的原因。  
-要解决前一个问题很简单，换门语言，这是我去接触go和JavaScript的契机。难度还是在后者，在当前的python单线程版本中也七弯八绕写了一堆才得以实现。
-尝试过了python的grequests库，但仍未搞懂它的错误处理机制，又尝试了用JS写，和前者相同，没搞懂它的错误处理，同样出现了重复请求同一条内容的问题。  
-也许是判断请求成功与否的逻辑不准确(比如出现状态码429）。
-# 更新日志
-23/01/24：   
-添加了从b站分p的视频获取每一p标题的模块（B2N2：bilibili to notion v2)，并把其中获取视频封面的功能拿出来以供单独运行,为了减少耗时添加了一个JS版本，但目前看起来和用python的grequests差不太多，甚至js版本在500条左右之后会放缓，虽然已经保证每一条都会添加，但是会开始添加重复的页面，还没搞清怎么解决，暂且这样
-
-23/02/01：  
-添加了B2N2带界面（GUI）版本的基础版本，并简单打包成了可执行程序（python写出来的程序打开的速度太慢啦~）
-
-23/02/03:  
-修复创建配置文件界面显示错误配置的bug，与基础版解耦，优化界面显示逻辑
-
-23/03/27:  
-添加了不带GUI的B2N2的自定义属性名配置（不填写则用之前的默认值），由于GUI版的需要重构UI，太过繁琐，之后慢慢修改(3.31找时间已补完)  
-视频总标题属性名保持为原来的“Name”暂不考虑更改
-
-23/10/23:
-在B2N3的开发中读到notion官方的api文档，明确了每秒三条请求的速率限制，否则返回429，那么关于并发上传的一些问题终于有了头绪
-
+由于notion设置了请求速率限制（3个/秒），当上传数量过于庞大时会增加上传的错误几率，属于正常现象。

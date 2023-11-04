@@ -33,7 +33,6 @@ import { NForm, NFormItem, NInput, NSelect, NButton, SelectOption, NSpace, NButt
 
 import { InputConfigName } from "@/components/modal/index";
 
-import { Configuration } from './types'
 import { ScanConfiguraitonFiles, CreateConfiguration, GetCurrentConfiguration, ChangeConfiguration, DeleteConfigurationFile } from '../../../wailsjs/go/main/App'
 import { config } from '../../../wailsjs/go/models'
 
@@ -49,9 +48,10 @@ let token = ref("")
 
 let selectLoading = ref(false)
 
-onMounted(async () => {
-    await loadSetting()
+onMounted(() => {
+    loadSetting()
 })
+
 
 const loadSetting = async () => {
     // 读取配置
@@ -71,6 +71,7 @@ const loadSetting = async () => {
     }
     selectLoading.value = false
     readSetting(optionValue.value)
+    return 
 }
 
 

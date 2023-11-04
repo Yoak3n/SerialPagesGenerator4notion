@@ -48,6 +48,7 @@ func (p *PosterPool) postSingleData(req *http.Request) error {
 
 // 考虑递归
 func (p *PosterPool) postRetry(req http.Request) error {
+
 	client := &http.Client{}
 	res, _ := client.Do(&req)
 	if res.StatusCode != 200 {

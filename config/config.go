@@ -1,6 +1,7 @@
 package config
 
 import (
+	"b2n3/package/logger"
 	"b2n3/package/util"
 	"encoding/json"
 	"errors"
@@ -20,7 +21,11 @@ const configPath = "data/.config"
 
 func init() {
 	util.CreateDirNotExists(configPath)
-	Conf = &Config{}
+	conf, err := InitConfiguration()
+	if err != nil {
+		logger.ERROR.Println(err)
+	}
+	Conf = conf
 }
 
 func LoadOptions() []string {
@@ -51,6 +56,9 @@ func LoadConfigFile(name string) (*Config, error) {
 }
 
 func ModifyConfiguration(config *Config) error {
+	if config.DatabaseID == "" {
+		return errors.New("config is nil")
+	}
 	Conf = config
 	return nil
 }
@@ -81,4 +89,12 @@ func writeConfigFile(name string) error {
 	defer fp.Close()
 	_, err = fp.Write([]byte(fmt.Sprintf(`{"database_id":"%s","token":"%s"}`, Conf.DatabaseID, Conf.Token)))
 	return err
+}
+
+func InitConfiguration() (*Config, error) {
+	conf_files := LoadOptions()
+	if len(conf_files) == 0 {
+		return nil, errors.New("没有找到配置文件")
+	}
+	return LoadConfigFile(LoadOptions()[0])
 }
