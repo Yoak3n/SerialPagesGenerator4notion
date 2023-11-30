@@ -62,13 +62,13 @@ def remove_illegal(video_name: str) ->str:
     return video_name
 
 def get_partName(bid):
-    result = re.match('https://www.bilibili.com/', bid)
+    result = re.match('https://www.bilibili.com/video/', bid)
     if result is None:
-        bvid = bvid.lstrip("BV")
+        bvid = bid.lstrip("BV")
         url =  f'https://api.bilibili.com/x/web-interface/view?bvid={bvid}'
     else:
-        bvid = bvid.lstrip("BV")
-        url = bvid
+        bvid = bid[result.end():].lstrip('BV')
+        url = f"https://api.bilibili.com/x/web-interface/view?bvid={bvid}"
     while True:
         try:
             response = requests.get(url)
@@ -85,7 +85,7 @@ def get_partName(bid):
 
                 partName_str = '\n'.join(partName_list)
                 videoName = remove_illegal(videoName).strip()
-                with open(f"./clc/list/{videoName}分集标题.txt", 'w', encoding='utf-8') as fp:
+                with open(f"../clc/list/{videoName}分集标题.txt", 'w', encoding='utf-8') as fp:
                     fp.writelines(partName_str)
 
                 print(f'已生成{videoName}的分集标题文件\n')
@@ -163,7 +163,6 @@ def post_notion(total, part, database_id, token, episode, episode_name,title):
     return
 
 if __name__ == '__main__':
-
     try:
         page_id, token, episode, episode_name, title = check_config()
         bid = input("请输入分集视频的BV号：")
