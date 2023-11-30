@@ -1,6 +1,6 @@
 module b2n3
 
-go 1.18
+go 1.20
 
 require (
 	github.com/tidwall/gjson v1.17.0
