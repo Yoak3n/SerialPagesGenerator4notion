@@ -63,13 +63,15 @@ func ModifyConfiguration(config *Config) error {
 	return nil
 }
 
-func CreateConfiguration(config *Config, name string) error {
+func CreateConfiguration(config Config, name string) error {
+	Conf = &Config{}
 	Conf.DatabaseID = config.DatabaseID
 	Conf.Token = config.Token
 	err := writeConfigFile(name)
 	if err != nil {
 		return err
 	}
+	logger.DEBUG.Println("创建配置文件成功")
 	return nil
 }
 
@@ -82,6 +84,7 @@ func DeleteConfigurationFile(name string) error {
 }
 
 func writeConfigFile(name string) error {
+	logger.DEBUG.Println("创建配置文件...")
 	fp, err := os.Create(fmt.Sprintf("%s/%s.json", configPath, name))
 	if err != nil {
 		return err

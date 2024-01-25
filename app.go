@@ -74,7 +74,7 @@ func (a *App) ScanConfiguraitonFiles() (configs []string) {
 }
 
 func (a *App) CreateConfiguration(conf config.Config, name string) string {
-	err := config.CreateConfiguration(&conf, name)
+	err := config.CreateConfiguration(conf, name)
 	if err != nil {
 		return "配置文件创建失败"
 	}
