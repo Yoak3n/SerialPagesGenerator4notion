@@ -3,6 +3,7 @@
         <div class="video-show" v-if="videoInfo">
             <div class="intro">
                 <img :src="videoInfo?.cover" />
+                <n-divider class="n-divider" vertical> </n-divider>
                 <div class="title">{{ videoInfo.name }}</div>
             </div>
             
@@ -37,7 +38,7 @@
 
 <script setup lang="ts">
 import { toRefs, ref, watch } from 'vue';
-import {NDataTable } from 'naive-ui'
+import {NDataTable,NDivider } from 'naive-ui'
 import { api } from 'wailsjs/go/models'
 type Video = {
     no: number
@@ -95,6 +96,9 @@ watch(() => bangumiInfo?.value, (c, o) => {
         position: relative;
         display: flex;
         justify-items: center;
+        .n-divider{
+            height: 3rem;
+        }
         .title{
             height: 3rem;
             font-size: 1.2rem; 

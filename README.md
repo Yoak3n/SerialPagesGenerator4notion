@@ -1,4 +1,4 @@
-B2N3即 `bilibili to notion version 3`，是`serial pages generator for notion`项目下`B2N`的迭代版本，基于wails客户端GUI框架实现，仅支持Windows10即以上和Mac的PC端——使用系统自带的Webview2。
+B2N3即 `bilibili to notion version 3`，是`serial pages generator for notion`项目下`B2N`的迭代版本，基于[wails](https://github.com/wailsapp/wails)客户端GUI框架实现，仅支持Windows10即以上和Mac的PC端——使用系统自带的Webview2。
 
 **目前B2N3仅初步完成导入分p视频到notion数据库的功能，且运行尚不稳定，请酌情使用。**
 
@@ -10,7 +10,7 @@ cd SerialPagesGenerator4notion
 wails build
 ```
 
-wails交叉编译暂未成功，如有需求可配置好相应环境（go+pnpm+wails）后自行编译
+wails交叉编译暂未成功，如有需求可配置好相应环境（`go`+`pnpm`+`wails`）后自行编译
 
 ## 运行
 
