@@ -79,10 +79,6 @@ const Confirm = async () => {
     let command: string = optionValue.value
     if (command == "创建新配置") {
         showModal.value = true
-        let conf = config.Config.createFrom({
-            database_id: database_id.value,
-            token: token.value,
-        })
     } else {
         let conf = config.Config.createFrom({
             database_id: database_id.value,

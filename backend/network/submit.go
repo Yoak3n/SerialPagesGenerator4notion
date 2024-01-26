@@ -4,15 +4,15 @@ import (
 	"b2n3/backend/model"
 	"b2n3/config"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 )
 
-func SubmitVideo(datas []*model.Data) {
+func SubmitVideo(datas []*model.Data, ctx *context.Context) {
 
-	pool := NewPosterPool(datas)
-	go pool.Watch()
+	pool := NewPosterPool(datas, ctx)
 	pool.Start()
 }
 

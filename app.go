@@ -57,7 +57,7 @@ func (a *App) GetBangumiInfo(name string) *api.Bangumi {
 }
 
 func (a *App) SubmitVideoInfo() []*model.Data {
-	datas := api.SumbitVideo()
+	datas := api.SumbitVideo(&a.ctx)
 	r, _ := json.Marshal(datas)
 
 	logger.INFO.Println(string(r))

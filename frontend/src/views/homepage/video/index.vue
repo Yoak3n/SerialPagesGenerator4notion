@@ -11,6 +11,11 @@
                 </n-space>
                 
             </n-form-item>
+            <n-progress 
+                v-show="total_length != 0" 
+                type="line" 
+                :percentage="computed_progress" 
+                :processing="loading"/>
         </n-form>
         <n-divider />
         <info-show-box :videoInfo="info"></info-show-box>
@@ -18,29 +23,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { NForm, NFormItem, NInput, NButton, NDivider,NSpace } from 'naive-ui';
+import { ref ,computed} from 'vue'
+import { NForm, NFormItem, NInput, NButton, NDivider,NSpace,NProgress } from 'naive-ui';
 import { GetVideoInfo, SubmitVideoInfo } from '../../../../wailsjs/go/main/App';
 import { api } from 'wailsjs/go/models';
 import { InfoShowBox } from '@/components/common/index'
-
+import {EventsOn} from '../../../../wailsjs/runtime'
 let loading = ref(false)
+let progress = ref(0)
+let total_length = ref(0)
 let target = ref('')
 let info = ref<api.VideoInfo>()
+
+
+let computed_progress = computed(()=>{
+    return parseFloat((progress.value/total_length.value*100).toFixed(2))
+})
 
 const getVideo = () => {
     loading.value = true
     GetVideoInfo(target.value).then((value) => {
         loading.value = false
         info.value = value
+        total_length.value = value.titles.length
     })
 }
-
+const updateProgressBar =()=>{
+    progress.value += 1
+}
 
 const submitVideoInfo = () => {
     loading.value = true
-    SubmitVideoInfo().then((datas)=> {
-        console.log(datas)
+    EventsOn("postProgress",updateProgressBar)
+    SubmitVideoInfo().then(()=> {
         loading.value = false
     })
 }

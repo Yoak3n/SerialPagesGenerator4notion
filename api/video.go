@@ -5,6 +5,7 @@ import (
 	"b2n3/backend/network"
 	"b2n3/config"
 	"b2n3/package/util"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -125,9 +126,9 @@ func (v *VideoInfo) getVideoData() error {
 
 // SubmitVideoInfo
 
-func SumbitVideo() []*model.Data {
+func SumbitVideo(ctx *context.Context) []*model.Data {
 	datas := initVideoBody()
-	network.SubmitVideo(datas)
+	network.SubmitVideo(datas, ctx)
 	return datas
 }
 

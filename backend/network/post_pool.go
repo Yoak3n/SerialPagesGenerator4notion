@@ -3,11 +3,13 @@ package network
 import (
 	"b2n3/backend/model"
 	"b2n3/package/logger"
+	"context"
 	"errors"
-	"log"
 	"math"
 	"net/http"
 	"time"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type PosterPool struct {
@@ -15,16 +17,17 @@ type PosterPool struct {
 	capacity  int
 	remainder int
 	datas     []*model.Data
-	count     chan int
+	ctx       *context.Context
 }
 
-func NewPosterPool(datas []*model.Data) *PosterPool {
+func NewPosterPool(datas []*model.Data, ctx *context.Context) *PosterPool {
 	l := len(datas)
 	return &PosterPool{
 		client:    &http.Client{},
 		datas:     datas,
 		capacity:  l,
 		remainder: int(math.Mod(float64(l), 3)),
+		ctx:       ctx,
 	}
 }
 
@@ -33,7 +36,6 @@ func (p *PosterPool) postSingleData(req *http.Request) error {
 	res, err := p.client.Do(req)
 	if res.StatusCode != 200 {
 		logger.ERROR.Println("Too many requests, retry after 1 second", res.Body)
-		log.Println(res.StatusCode, req.Header, req.Body)
 		time.Sleep(time.Second)
 		// 估计会有BUG
 
@@ -42,7 +44,7 @@ func (p *PosterPool) postSingleData(req *http.Request) error {
 	if err != nil {
 		logger.ERROR.Println("Posting data failed: ", err)
 	}
-	p.count <- 1
+	runtime.EventsEmit(*p.ctx, "postProgress")
 	return nil
 }
 
@@ -54,7 +56,6 @@ func (p *PosterPool) postRetry(req http.Request) error {
 	if res.StatusCode != 200 {
 		return p.postRetry(req)
 	}
-	p.count <- 1
 	return nil
 }
 
@@ -78,13 +79,4 @@ func (p *PosterPool) Start() error {
 		go p.postSingleData(reqs[i])
 	}
 	return nil
-}
-
-func (p *PosterPool) Watch() {
-	select {
-	case <-p.count:
-		logger.INFO.Println("Posting data add")
-	case p.count <- 1:
-		logger.INFO.Println("Posting data added")
-	}
 }
