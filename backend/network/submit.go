@@ -4,21 +4,26 @@ import (
 	"b2n3/backend/model"
 	"b2n3/config"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
-func SubmitVideo(datas []*model.Data) {
+func SubmitVideo(datas []*model.Data, ctx *context.Context) {
 
-	pool := NewPosterPool(datas)
+	pool := NewPosterPool(datas, ctx)
 	go pool.Watch()
 	pool.Start()
 }
 
 func generateSinglePostRequest(data *model.Data) (*http.Request, error) {
-
-	b, _ := json.Marshal(data)
+	data.Properties.Name.Select.Name = strings.Replace(data.Properties.Name.Select.Name, ",", "，", -1)
+	b, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
 	buf := bytes.NewBuffer(b)
 	req, err := http.NewRequest("POST", "https://api.notion.com/v1/pages/", buf)
 	if err != nil {

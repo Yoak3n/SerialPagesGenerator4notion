@@ -64,6 +64,7 @@ func ModifyConfiguration(config *Config) error {
 }
 
 func CreateConfiguration(config *Config, name string) error {
+	Conf = &Config{}
 	Conf.DatabaseID = config.DatabaseID
 	Conf.Token = config.Token
 	err := writeConfigFile(name)

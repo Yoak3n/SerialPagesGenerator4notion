@@ -5,12 +5,14 @@ import (
 	"b2n3/backend/network"
 	"b2n3/config"
 	"b2n3/package/util"
+	"context"
 	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/tidwall/gjson"
 )
@@ -125,9 +127,9 @@ func (v *VideoInfo) getVideoData() error {
 
 // SubmitVideoInfo
 
-func SumbitVideo() []*model.Data {
+func SumbitVideo(ctx *context.Context) []*model.Data {
 	datas := initVideoBody()
-	network.SubmitVideo(datas)
+	network.SubmitVideo(datas,ctx)
 	return datas
 }
 
@@ -136,7 +138,7 @@ func initVideoBody() (datas []*model.Data) {
 		Type:       "database_id",
 		DatabaseID: config.Conf.DatabaseID,
 	}
-
+	name := strings.ReplaceAll(video.Name, ",", "，")
 	for episode, episodeName := range video.Titles {
 		properties := &model.Properties{
 			Episode: model.Episode{
@@ -145,9 +147,9 @@ func initVideoBody() (datas []*model.Data) {
 			EpisodeName: *genEpisodeName(&episodeName),
 			Name: model.Name{
 				Select: struct {
-					Name string "json:\"name\""
+					Name string `json:"name"`
 				}{
-					Name: video.Name,
+					Name: name,
 				},
 			},
 		}
