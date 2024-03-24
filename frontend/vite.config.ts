@@ -9,4 +9,7 @@ export default defineConfig({
       "@": path.resolve("./src")
     }
   },
+  server:{
+    port:8080,
+  }
 })
