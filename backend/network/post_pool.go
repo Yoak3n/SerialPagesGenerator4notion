@@ -17,7 +17,6 @@ type PosterPool struct {
 	capacity  int
 	remainder int
 	datas     []*model.Data
-	count     chan int
 	ctx       *context.Context
 }
 
@@ -39,7 +38,6 @@ func (p *PosterPool) postSingleData(req *http.Request) error {
 		logger.ERROR.Println("Too many requests, retry after 1 second", res.Body)
 		time.Sleep(time.Second)
 		// 估计会有BUG
-
 		p.postRetry(*nreq)
 	}
 	if err != nil {
@@ -51,13 +49,13 @@ func (p *PosterPool) postSingleData(req *http.Request) error {
 
 // 考虑递归
 func (p *PosterPool) postRetry(req http.Request) error {
-
 	client := &http.Client{}
 	res, _ := client.Do(&req)
 	if res.StatusCode != 200 {
+		logger.ERROR.Println("Too many requests, retry after 1 second", res.Body)
+		time.Sleep(time.Second)
 		return p.postRetry(req)
 	}
-	p.count <- 1
 	return nil
 }
 
@@ -81,13 +79,4 @@ func (p *PosterPool) Start() error {
 		go p.postSingleData(reqs[i])
 	}
 	return nil
-}
-
-func (p *PosterPool) Watch() {
-	select {
-	case <-p.count:
-		logger.INFO.Println("Posting data add")
-	case p.count <- 1:
-		logger.INFO.Println("Posting data added")
-	}
 }

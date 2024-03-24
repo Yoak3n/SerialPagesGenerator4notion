@@ -129,7 +129,7 @@ func (v *VideoInfo) getVideoData() error {
 
 func SumbitVideo(ctx *context.Context) []*model.Data {
 	datas := initVideoBody()
-	network.SubmitVideo(datas,ctx)
+	network.SubmitVideo(datas, ctx)
 	return datas
 }
 

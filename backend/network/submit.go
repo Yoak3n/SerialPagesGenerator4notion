@@ -8,18 +8,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 )
 
 func SubmitVideo(datas []*model.Data, ctx *context.Context) {
 
 	pool := NewPosterPool(datas, ctx)
-	go pool.Watch()
 	pool.Start()
 }
 
 func generateSinglePostRequest(data *model.Data) (*http.Request, error) {
-	data.Properties.Name.Select.Name = strings.Replace(data.Properties.Name.Select.Name, ",", "，", -1)
 	b, err := json.Marshal(data)
 	if err != nil {
 		return nil, err
