@@ -3,7 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "port": "8080",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
