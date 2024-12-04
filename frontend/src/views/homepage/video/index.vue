@@ -29,9 +29,9 @@ import { ref ,computed} from 'vue'
 import { NForm, NFormItem, NInput, NButton, NDivider,NSpace,NProgress,useThemeVars } from 'naive-ui';
 import { changeColor } from 'seemly'
 import { GetVideoInfo, SubmitVideoInfo } from '../../../../wailsjs/go/main/App';
-import { api } from 'wailsjs/go/models';
+import { api } from '../../../../wailsjs/go/models';
 import { InfoShowBox } from '@/components/common/index'
-import {EventsOn} from '../../../../wailsjs/runtime'
+import {EventsOff, EventsOn} from '../../../../wailsjs/runtime'
 
 let themeVars = useThemeVars()
 
@@ -55,14 +55,18 @@ const getVideo = () => {
         loading.value = false
         info.value = value
         total_length.value = value.titles.length
+        progress.value = 0
     })
 }
 const updateProgressBar =()=>{
     progress.value += 1
+    console.log(computed_progress.value,total_length.value,progress.value);
 }
 
 const submitVideoInfo = () => {
     loading.value = true
+    progress.value = 0
+    EventsOff("postProgress")
     EventsOn("postProgress",updateProgressBar)
     SubmitVideoInfo().then(()=> {
         loading.value = false

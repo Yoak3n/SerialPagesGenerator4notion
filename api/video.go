@@ -158,7 +158,6 @@ func initVideoBody() (datas []*model.Data) {
 			Parent:     *parent,
 			Properties: *properties,
 		}
-
 		datas = append(datas, data)
 	}
 

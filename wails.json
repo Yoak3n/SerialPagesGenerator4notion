@@ -5,6 +5,9 @@
   "frontend:install": "pnpm install",
   "frontend:build": "pnpm run build",
   "frontend:dev:watcher": "pnpm run dev",
+  "info":{
+    "version":"0.0.6"
+  },
   "author": {
     "name": "Yoake",
     "email": "3354590676@qq.com"
