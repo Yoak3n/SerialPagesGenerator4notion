@@ -81,7 +81,6 @@ const submitVideoInfo = () => {
 <style scoped>
 .video-wrapper {
     text-align: left;
-
     .n-space {
         width: 100%;
         .n-button{

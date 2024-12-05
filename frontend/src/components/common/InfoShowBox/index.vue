@@ -68,7 +68,10 @@ const createColumns = (): DataTableColumns<Video> => {
                     },{  })
                 }else{
                     // 加载图标
-                    return h('div',{},[h(NIcon,{component: h('i',{class:'fa-solid fa-xmark'})})])
+                    return h('div',{
+                        component: CheckmarkCircle,
+                        color:"grey"
+                    },)
                 }
             }
         }
