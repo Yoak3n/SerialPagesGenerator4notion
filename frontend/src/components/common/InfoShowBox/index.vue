@@ -37,14 +37,17 @@
 </template>
 
 <script setup lang="ts">
-import { toRefs, ref, watch } from 'vue';
-import {NDataTable,NDivider } from 'naive-ui'
-import { api } from 'wailsjs/go/models'
+import { toRefs, ref, watch,h } from 'vue';
+import {NDataTable,NDivider,NIcon } from 'naive-ui'
+import type{DataTableColumns} from 'naive-ui';
+import { api } from '../../../../wailsjs/go/models'
+import {CheckmarkCircle} from "@vicons/ionicons5"
 type Video = {
     no: number
     title: string
+    status:boolean
 }
-const createColumns = () => {
+const createColumns = (): DataTableColumns<Video> => {
     return [
         {
             title: 'No',
@@ -52,36 +55,50 @@ const createColumns = () => {
         }, {
             title: 'Title',
             key: 'title'
+        },{
+            title: 'Status',
+            key: 'status',
+            align:"center",
+            render(row: Video){
+                const index_temp = index?.value as Array<number>
+                if (index_temp.includes(row.no)){
+                    return h(NIcon,{
+                        component: CheckmarkCircle,
+                        color: 'green'
+                    },{  })
+                }else{
+                    // 加载图标
+                    return h('div',{},[h(NIcon,{component: h('i',{class:'fa-solid fa-xmark'})})])
+                }
+            }
         }
     ]
 }
 let data = ref<Video[]>([])
 
-const columns = createColumns()
+const columns: DataTableColumns<Video> = createColumns()
 
-const props = defineProps(["videoInfo", "bangumiInfo"])
+const props = defineProps(["videoInfo", "bangumiInfo","index"])
 
-let { videoInfo, bangumiInfo } = toRefs(props)
+let { videoInfo, bangumiInfo,index } = toRefs(props)
 
 watch(() => videoInfo?.value, (c, o) => {
-    
     if (c != undefined && c != o) {
         data.value = []
         let titles: string[] = JSON.parse(JSON.stringify(videoInfo?.value.titles))
         titles.forEach((value, index) => {
-            let item: Video = { no: index + 1, title: value }
+            let item: Video = { no: index + 1, title: value , status:false }
             data.value?.push(item)
         })
     }
-
 })
+
 watch(() => bangumiInfo?.value, (c, o) => {
     if (c != undefined && c != o) {
         data.value = []
         let main: api.Section[] = JSON.parse(JSON.stringify(bangumiInfo?.value.main))
-        console.log(main);
         main.forEach((value, index) => {
-            let item: Video = { no: index + 1, title: value.long_title }
+            let item: Video = { no: index + 1, title: value.long_title ,status:false}
             data.value?.push(item)
         })
 

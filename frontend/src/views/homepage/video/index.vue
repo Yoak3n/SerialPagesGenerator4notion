@@ -20,7 +20,7 @@
                 :processing="loading"/>
         </n-form>
         <n-divider />
-        <info-show-box :videoInfo="info"></info-show-box>
+        <info-show-box :videoInfo="info" :index="completed_index"></info-show-box>
     </div>
 </template>
 
@@ -40,7 +40,7 @@ let progress = ref(0)
 let total_length = ref(0)
 let target = ref('')
 let info = ref<api.VideoInfo>()
-
+let completed_index = ref<number[]>([])
 
 let computed_progress = computed(()=>{
     return parseFloat((progress.value/total_length.value*100).toFixed(2))
@@ -60,13 +60,16 @@ const getVideo = () => {
 }
 const updateProgressBar =()=>{
     progress.value += 1
-    console.log(computed_progress.value,total_length.value,progress.value);
+    completed_index.value.push(progress.value)
+    console.log(completed_index.value);
+    
 }
 
 const submitVideoInfo = () => {
     loading.value = true
     progress.value = 0
     EventsOff("postProgress")
+    completed_index.value = []
     EventsOn("postProgress",updateProgressBar)
     SubmitVideoInfo().then(()=> {
         loading.value = false
