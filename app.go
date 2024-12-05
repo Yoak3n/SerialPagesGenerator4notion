@@ -6,7 +6,6 @@ import (
 	"b2n3/config"
 	"b2n3/package/logger"
 	"context"
-	"encoding/json"
 	"fmt"
 )
 
@@ -56,11 +55,9 @@ func (a *App) GetBangumiInfo(name string) *api.Bangumi {
 	return bangumi
 }
 
-func (a *App) SubmitVideoInfo() []*model.Data {
-	datas := api.SumbitVideo(&a.ctx)
-	r, _ := json.Marshal(datas)
-
-	logger.INFO.Println(string(r))
+func (a *App) SubmitVideoInfo(uri string) []*model.Data {
+	datas := api.SumbitVideo(&a.ctx, uri)
+	// r, _ := json.Marshal(datas)
 	return datas
 }
 func (a *App) SubmitBangumiInfo() {

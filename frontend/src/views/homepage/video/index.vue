@@ -71,7 +71,7 @@ const submitVideoInfo = () => {
     EventsOff("postProgress")
     completed_index.value = []
     EventsOn("postProgress",updateProgressBar)
-    SubmitVideoInfo().then(()=> {
+    SubmitVideoInfo(target.value).then(()=> {
         loading.value = false
     })
 }

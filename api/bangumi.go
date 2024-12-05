@@ -12,24 +12,22 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-
 var bangumi *Bangumi
 
 type Bangumi struct {
-	SeasonID string    `json:"season_id"`
-	Title     string `json:"title"`
-	BangumiCover string `json:"bangumi_cover"`
-	Main     []Section `json:"main"`
-	Sub      []Section `json:"sub"`
+	SeasonID     string    `json:"season_id"`
+	Title        string    `json:"title"`
+	BangumiCover string    `json:"bangumi_cover"`
+	Main         []Section `json:"main"`
+	Sub          []Section `json:"sub"`
 }
 
 type Section struct {
-	AID       int64  `json:"aid"`
-	LongTitle string `json:"long_title"`
+	AID        int64  `json:"aid"`
+	LongTitle  string `json:"long_title"`
 	ShortTitle string `json:"short_title"`
-	Cover     string `json:"cover"`
+	Cover      string `json:"cover"`
 }
-
 
 func NewBangumiInfo(input string) *Bangumi {
 	id := checkBangumiID(input)
@@ -38,26 +36,25 @@ func NewBangumiInfo(input string) *Bangumi {
 	}
 	bangumi = &Bangumi{}
 	bangumi.SeasonID = id
-	err := bangumi.getBangumiInfo()
+	err := bangumi.getInfo()
 	if err != nil {
-		log.Println(err,"info")
+		log.Println(err, "info")
 		return nil
 	}
-	err = bangumi.getBangumiDetail()
+	err = bangumi.getDetail()
 	if err != nil {
-		log.Println(err,"detail")
+		log.Println(err, "detail")
 		return nil
 	}
 	return bangumi
 }
 
-
-func GetBangumiInfo()*Bangumi{
+func GetBangumiInfo() *Bangumi {
 	return bangumi
 }
 
-func (b *Bangumi)getBangumiDetail()error{
-	uri := fmt.Sprintf("https://api.bilibili.com/pgc/view/web/season?season_id=%s",b.SeasonID)
+func (b *Bangumi) getDetail() error {
+	uri := fmt.Sprintf("https://api.bilibili.com/pgc/view/web/season?season_id=%s", b.SeasonID)
 	res, err := http.Get(uri)
 	if err != nil {
 		return err
@@ -69,7 +66,7 @@ func (b *Bangumi)getBangumiDetail()error{
 	}
 	result := gjson.ParseBytes(buf)
 	code := result.Get("code").Int()
-	if code != 0{
+	if code != 0 {
 		return errors.New(result.Get("message").String())
 	}
 	b.BangumiCover = result.Get("result.cover").String()
@@ -77,7 +74,7 @@ func (b *Bangumi)getBangumiDetail()error{
 	return nil
 }
 
-func (b *Bangumi) getBangumiInfo() error {
+func (b *Bangumi) getInfo() error {
 	uri := fmt.Sprintf("https://api.bilibili.com/pgc/web/season/section?season_id=%s", b.SeasonID)
 	res, err := http.Get(uri)
 	if err != nil {
@@ -98,11 +95,11 @@ func (b *Bangumi) getBangumiInfo() error {
 	mainEpisodes := make([]Section, 0)
 	subEpisodes := make([]Section, 0)
 	for _, r := range mainSection {
-		singleEpisode := Section{r.Get("aid").Int(), r.Get("long_title").String(),r.Get("title").String(), r.Get("cover").String()}
+		singleEpisode := Section{r.Get("aid").Int(), r.Get("long_title").String(), r.Get("title").String(), r.Get("cover").String()}
 		mainEpisodes = append(mainEpisodes, singleEpisode)
 	}
 	for _, r := range subSection {
-		singleEpisode := Section{r.Get("aid").Int(), r.Get("long_title").String(),r.Get("title").String(), r.Get("cover").String()}
+		singleEpisode := Section{r.Get("aid").Int(), r.Get("long_title").String(), r.Get("title").String(), r.Get("cover").String()}
 		subEpisodes = append(subEpisodes, singleEpisode)
 	}
 	b.Main = mainEpisodes

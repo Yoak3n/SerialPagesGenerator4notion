@@ -52,11 +52,11 @@ func NewVideoInfo(in string) *VideoInfo {
 		log.Fatal("视频数据类型错误")
 		return nil
 	}
-	err := video.getVideoTitle()
+	err := video.getInfo()
 	if err != nil {
 		return nil
 	}
-	err = video.getVideoData()
+	err = video.getDetail()
 	if err != nil {
 		return video
 		// 接口失效，继续观望
@@ -68,7 +68,7 @@ func GetVideoInfo() *VideoInfo {
 	return video
 }
 
-func (v *VideoInfo) getVideoTitle() error {
+func (v *VideoInfo) getInfo() error {
 	uri := fmt.Sprintf("https://api.bilibili.com/x/web-interface/view?bvid=%s", v.BvID)
 	res, err := http.Get(uri)
 	if err != nil {
@@ -104,7 +104,7 @@ func (v *VideoInfo) getVideoTitle() error {
 	return nil
 }
 
-func (v *VideoInfo) getVideoData() error {
+func (v *VideoInfo) getDetail() error {
 	uri := fmt.Sprintf("https://api.bilibili.com/archive_stat/stat?aid=%d", v.AID)
 	res, err := http.Get(uri)
 	if err != nil {
@@ -127,16 +127,19 @@ func (v *VideoInfo) getVideoData() error {
 
 // SubmitVideoInfo
 
-func SumbitVideo(ctx *context.Context) []*model.Data {
-	datas := initVideoBody()
+func SumbitVideo(ctx *context.Context, in string) []*model.Data {
+	datas := initVideoBody(in)
 	network.SubmitVideo(datas, ctx)
 	return datas
 }
 
-func initVideoBody() (datas []*model.Data) {
+func initVideoBody(in string) (datas []*model.Data) {
 	parent := &model.Parent{
 		Type:       "database_id",
 		DatabaseID: config.Conf.DatabaseID,
+	}
+	if video == nil {
+		video = NewVideoInfo(in)
 	}
 	name := strings.ReplaceAll(video.Name, ",", "，")
 	for episode, episodeName := range video.Titles {
@@ -146,17 +149,15 @@ func initVideoBody() (datas []*model.Data) {
 			},
 			EpisodeName: *genEpisodeName(&episodeName),
 			Name: model.Name{
-				Select: struct {
-					Name string `json:"name"`
-				}{
+				Select: model.Select{
 					Name: name,
 				},
 			},
 		}
 
 		data := &model.Data{
-			Parent:     *parent,
-			Properties: *properties,
+			Parent:     parent,
+			Properties: properties,
 		}
 		datas = append(datas, data)
 	}
@@ -169,9 +170,7 @@ func genEpisodeName(name *string) *model.EpisodeName {
 	titles := make([]model.Title, 0)
 	title := &model.Title{
 		Type: "text",
-		Text: struct {
-			Content string "json:\"content\""
-		}{
+		Text: model.Text{
 			Content: *name,
 		},
 	}

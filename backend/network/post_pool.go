@@ -4,6 +4,7 @@ import (
 	"b2n3/backend/model"
 	"b2n3/package/logger"
 	"context"
+	"errors"
 	"log"
 	"math"
 	"net/http"
@@ -42,9 +43,8 @@ func (p *PosterPool) postSingleData(req *http.Request, index int) error {
 	if res.StatusCode != 200 || err != nil {
 		logger.INFO.Println("Too many requests, retry after 1 second")
 		time.Sleep(time.Second)
-		// 估计会有BUG
 		p.postRetry(*nreq, index)
-		return nil
+		return errors.New("too many requests")
 	}
 	// log.Println("Posting data success", index)
 	p.wg.Done()
