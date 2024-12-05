@@ -1,6 +1,8 @@
 package api
 
 import (
+	"b2n3/config"
+	"b2n3/package/logger"
 	"errors"
 	"fmt"
 	"io"
@@ -41,6 +43,7 @@ func NewBangumiInfo(input string) *Bangumi {
 		log.Println(err, "info")
 		return nil
 	}
+	logger.INFO.Println(bangumi.Main)
 	err = bangumi.getDetail()
 	if err != nil {
 		log.Println(err, "detail")
@@ -54,8 +57,14 @@ func GetBangumiInfo() *Bangumi {
 }
 
 func (b *Bangumi) getDetail() error {
+	client := &http.Client{}
 	uri := fmt.Sprintf("https://api.bilibili.com/pgc/view/web/season?season_id=%s", b.SeasonID)
-	res, err := http.Get(uri)
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Cookie", config.Conf.Cookie)
+	res, err := client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -76,7 +85,13 @@ func (b *Bangumi) getDetail() error {
 
 func (b *Bangumi) getInfo() error {
 	uri := fmt.Sprintf("https://api.bilibili.com/pgc/web/season/section?season_id=%s", b.SeasonID)
-	res, err := http.Get(uri)
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Cookie", config.Conf.Cookie)
+	res, err := client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -88,7 +103,7 @@ func (b *Bangumi) getInfo() error {
 	result := gjson.ParseBytes(buf)
 	code := result.Get("code").Int()
 	mainSection := result.Get("result.main_section.episodes").Array()
-	subSection := result.Get("result.sub_section.episodes").Array()
+	subSection := result.Get("result.section.episodes").Array()
 	if code != 0 {
 		return errors.New(result.Get("message").String())
 	}
@@ -124,13 +139,17 @@ func checkBangumiID(target string) string {
 	}
 }
 func extractBangumiID(target string) string {
-	if strings.HasPrefix(target, "ss") {
-		id, ok := strings.CutPrefix(target, "ss")
-		if ok {
-			return id
+	bangumiPrefix := []string{"ss", "ep"}
+	for _, prefix := range bangumiPrefix {
+		if strings.HasPrefix(target, prefix) {
+			id, ok := strings.CutPrefix(target, prefix)
+			if ok {
+				return id
+			}
+			return ""
+		} else {
+			return target
 		}
-		return ""
-	} else {
-		return target
 	}
+	return ""
 }

@@ -13,6 +13,7 @@ import (
 type Config struct {
 	DatabaseID string `json:"database_id"`
 	Token      string `json:"token"`
+	Cookie     string `json:cookie`
 }
 
 var Conf *Config
@@ -67,6 +68,7 @@ func CreateConfiguration(config *Config, name string) error {
 	Conf = &Config{}
 	Conf.DatabaseID = config.DatabaseID
 	Conf.Token = config.Token
+	Conf.Cookie = config.Cookie
 	err := writeConfigFile(name)
 	if err != nil {
 		return err
@@ -90,7 +92,7 @@ func writeConfigFile(name string) error {
 		return err
 	}
 	defer fp.Close()
-	_, err = fp.Write([]byte(fmt.Sprintf(`{"database_id":"%s","token":"%s"}`, Conf.DatabaseID, Conf.Token)))
+	_, err = fp.Write([]byte(fmt.Sprintf(`{"database_id":"%s","token":"%s","cookie":"%s"}}`, Conf.DatabaseID, Conf.Token, Conf.Cookie)))
 	return err
 }
 
