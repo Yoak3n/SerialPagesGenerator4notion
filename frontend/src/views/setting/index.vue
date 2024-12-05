@@ -59,7 +59,6 @@ const loadSetting = async () => {
     // 读取文件配置缓冲
     let optionTemp: SelectOption[] = []
     let result = await ScanConfiguraitonFiles()
-
     for (let i = 0; i < result.length; i++) {
         let reg = result[i].split('.json')[0]
         optionTemp.push({
@@ -87,10 +86,8 @@ const Confirm = async () => {
         let res = await ChangeConfiguration(conf)
         if (res === 0) {
             window.$message.success("配置修改成功！", { duration: 2000 })
-
         }
     }
-
 }
 
 const deleteConfiguration = () => {

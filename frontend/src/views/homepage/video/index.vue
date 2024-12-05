@@ -9,7 +9,6 @@
                     <n-button type="info" @click="getVideo" :loading="loading">搜索</n-button>
                     <n-button type="success" @click="submitVideoInfo" :loading="loading">提交</n-button>
                 </n-space>
-                
             </n-form-item>
             <n-progress 
                 v-show="total_length != 0" 
@@ -34,7 +33,6 @@ import { InfoShowBox } from '@/components/common/index'
 import {EventsOff, EventsOn} from '../../../../wailsjs/runtime'
 
 let themeVars = useThemeVars()
-
 let loading = ref(false)
 let progress = ref(0)
 let total_length = ref(0)
@@ -61,8 +59,6 @@ const getVideo = () => {
 const updateProgressBar =()=>{
     progress.value += 1
     completed_index.value.push(progress.value)
-    console.log(completed_index.value);
-    
 }
 
 const submitVideoInfo = () => {
@@ -75,7 +71,6 @@ const submitVideoInfo = () => {
         loading.value = false
     })
 }
-
 </script>
 
 <style scoped>
