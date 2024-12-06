@@ -126,7 +126,6 @@ func (v *VideoInfo) getDetail() error {
 }
 
 // SubmitVideoInfo
-
 func SumbitVideo(ctx *context.Context, in string) []*model.Data {
 	datas := initVideoBody(in)
 	network.SubmitVideo(datas, ctx)
@@ -163,7 +162,6 @@ func initVideoBody(in string) (datas []*model.Data) {
 	}
 
 	return
-
 }
 
 func genEpisodeName(name *string) *model.EpisodeName {
