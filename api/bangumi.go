@@ -47,11 +47,6 @@ func NewBangumiInfo(input string) *Bangumi {
 		t = "ep"
 	}
 	bangumi.Type = t
-	// err := bangumi.getInfo()
-	// if err != nil {
-	// 	logger.ERROR.Println(err)
-	// 	return nil
-	// }
 	logger.INFO.Println(bangumi.Main)
 	err := bangumi.getDetail()
 	if err != nil {

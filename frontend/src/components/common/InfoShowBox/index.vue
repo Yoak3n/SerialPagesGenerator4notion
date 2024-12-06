@@ -41,7 +41,7 @@ import { toRefs, ref, watch,h } from 'vue';
 import {NDataTable,NDivider,NIcon } from 'naive-ui'
 import type{DataTableColumns} from 'naive-ui';
 import { api } from '../../../../wailsjs/go/models'
-import {CheckmarkCircle} from "@vicons/ionicons5"
+import {CheckmarkCircle,CloudUploadSharp} from "@vicons/ionicons5"
 type Video = {
     no: number
     title: string
@@ -68,8 +68,8 @@ const createColumns = (): DataTableColumns<Video> => {
                     },{  })
                 }else{
                     // 加载图标
-                    return h('div',{
-                        component: CheckmarkCircle,
+                    return h(NIcon,{
+                        component: CloudUploadSharp,
                         color:"grey"
                     },)
                 }

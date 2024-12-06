@@ -69,6 +69,7 @@ const submitVideoInfo = () => {
     EventsOn("postProgress",updateProgressBar)
     SubmitVideoInfo(target.value).then(()=> {
         loading.value = false
+        window.$message.success("数据上传完成")
     })
 }
 </script>

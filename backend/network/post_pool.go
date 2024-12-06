@@ -41,7 +41,7 @@ func (p *PosterPool) postSingleData(req *http.Request, index int) error {
 	nreq := req
 	res, err := p.client.Do(req)
 	if res.StatusCode != 200 || err != nil {
-		logger.ERROR.Println("Too many requests, retry after 1 second")
+		logger.ERROR.Println("Too many requests, retry after 1 second", res.StatusCode, err)
 		time.Sleep(time.Second)
 		p.postRetry(*nreq, index)
 		return errors.New("too many requests")
