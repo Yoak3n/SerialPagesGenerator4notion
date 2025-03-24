@@ -34,15 +34,11 @@ func NewPosterPool(datas []*model.Data, ctx *context.Context) *PosterPool {
 func (p *PosterPool) postSingleData(req *http.Request) error {
 	nreq := req
 	res, err := p.client.Do(req)
-	if res.StatusCode != 200 {
-		logger.ERROR.Println("Too many requests, retry after 1 second", res.Body)
+	if err != nil || res.StatusCode != 200 {
+		logger.DEBUG.Println("Too many requests, retry after 1 second", res.Body)
 		time.Sleep(time.Second)
 		// 估计会有BUG
-
 		p.postRetry(*nreq)
-	}
-	if err != nil {
-		logger.ERROR.Println("Posting data failed: ", err)
 	}
 	runtime.EventsEmit(*p.ctx, "postProgress")
 	return nil
@@ -50,12 +46,12 @@ func (p *PosterPool) postSingleData(req *http.Request) error {
 
 // 考虑递归
 func (p *PosterPool) postRetry(req http.Request) error {
-
 	client := &http.Client{}
-	res, _ := client.Do(&req)
-	if res.StatusCode != 200 {
+	res, err := client.Do(&req)
+	if err != nil || res.StatusCode != 200 {
 		return p.postRetry(req)
 	}
+	runtime.EventsEmit(*p.ctx, "postProgress")
 	return nil
 }
 

@@ -31,7 +31,7 @@ import { changeColor } from 'seemly'
 import { GetVideoInfo, SubmitVideoInfo } from '../../../../wailsjs/go/main/App';
 import { api } from 'wailsjs/go/models';
 import { InfoShowBox } from '@/components/common/index'
-import {EventsOn} from '../../../../wailsjs/runtime'
+import {EventsOnMultiple} from '../../../../wailsjs/runtime'
 
 let themeVars = useThemeVars()
 
@@ -53,6 +53,7 @@ const getVideo = () => {
     loading.value = true
     GetVideoInfo(target.value).then((value) => {
         loading.value = false
+        progress.value = 0
         info.value = value
         total_length.value = value.titles.length
     })
@@ -63,7 +64,8 @@ const updateProgressBar =()=>{
 
 const submitVideoInfo = () => {
     loading.value = true
-    EventsOn("postProgress",updateProgressBar)
+    progress.value = 0
+    EventsOnMultiple("postProgress",updateProgressBar,total_length.value)
     SubmitVideoInfo().then(()=> {
         loading.value = false
     })

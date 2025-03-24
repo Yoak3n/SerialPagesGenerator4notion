@@ -6,6 +6,7 @@ const routes:RouteRecordRaw[] = [
         path:'/',
         component:()=>import('@/views/homepage/index.vue'),
         name:'homepage',
+        redirect:'/video',
         children:[
             {
                 path:'/video',

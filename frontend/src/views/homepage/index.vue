@@ -12,7 +12,7 @@
                 @collapse="collapsed = true"
                 @expand="collapsed = false">
                 <!-- <div class="sider-bar"> -->
-                <n-menu :options="menuOptions" v-model:value="activeKey" :collapsed-width="64" :collapsed="collapsed"
+                <n-menu :options="menuOptions" :value="$route.name?.toString()" :collapsed-width="64" :collapsed="collapsed"
                     :collapsed-icon-size="24.5">
                 </n-menu>
                 <n-button text style="font-size: 36px" size="large" class="setting" @click="openSetting">
@@ -33,38 +33,20 @@
 
         </n-layout>
 
-
-        <!-- <n-space justify="space-around" align="center" vertical>
-                <n-button size="large" class="view-btn">
-                    视频
-                </n-button>
-                <n-button size="large" class="view-btn">
-                    番剧
-                </n-button>
-                <n-button text style="font-size: 24px" size="large">
-                    <template #icon>
-                        <n-icon>
-                            <settings />
-                        </n-icon>
-                    </template>
-                </n-button>
-            </n-space> -->
-        <n-divider vertical />
-        <RouterView></RouterView>
     </div>
 </template>
 
 <script setup lang="ts">
-import { h, ref, Component, onMounted } from 'vue'
-import { RouterLink,useRouter } from 'vue-router'
-import { NButton, NIcon, NDivider, NMenu, NLayout, NLayoutSider, NLayoutContent } from 'naive-ui'
+import { h, ref, Component } from 'vue'
+import { RouterLink,useRouter,useRoute } from 'vue-router'
+import { NButton, NIcon, NMenu, NLayout, NLayoutSider, NLayoutContent } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
 import { Settings, Videocam, PlayCircle } from '@vicons/ionicons5'
 
 
 const $router = useRouter()
-let activeKey = ref('')
-let collapsed = ref(false)
+const $route = useRoute()
+let collapsed = ref(true)
 // 渲染图标函数
 const renderIcon = (icon: Component) => {
     return () => h(NIcon, null, { default: () => h(icon) })
@@ -100,14 +82,8 @@ const menuOptions: MenuOption[] = [
 
 const openSetting = () => {
     $router.push('/setting')
-    activeKey.value = 'setting'
 }
 
-// 初始化
-onMounted(()=>{
-    activeKey.value = 'video'
-    $router.push('/video')
-})
 
 
 

@@ -146,7 +146,7 @@ func initVideoBody() (datas []*model.Data) {
 			EpisodeName: *genEpisodeName(&episodeName),
 			Name: model.Name{
 				Select: struct {
-					Name string "json:\"name\""
+					Name string `json:"name"`
 				}{
 					Name: video.Name,
 				},
@@ -170,7 +170,7 @@ func genEpisodeName(name *string) *model.EpisodeName {
 	title := &model.Title{
 		Type: "text",
 		Text: struct {
-			Content string "json:\"content\""
+			Content string `json:"content"`
 		}{
 			Content: *name,
 		},
