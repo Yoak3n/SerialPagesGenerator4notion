@@ -6,7 +6,6 @@ import (
 	"b2n3/config"
 	"b2n3/package/logger"
 	"context"
-	"encoding/json"
 	"fmt"
 )
 
@@ -56,11 +55,9 @@ func (a *App) GetBangumiInfo(name string) *api.Bangumi {
 	return bangumi
 }
 
-func (a *App) SubmitVideoInfo() []*model.Data {
-	datas := api.SumbitVideo(&a.ctx)
-	r, _ := json.Marshal(datas)
-
-	logger.INFO.Println(string(r))
+func (a *App) SubmitVideoInfo(uri string) []*model.Data {
+	datas := api.SumbitVideo(&a.ctx, uri)
+	// r, _ := json.Marshal(datas)
 	return datas
 }
 func (a *App) SubmitBangumiInfo() {
@@ -74,7 +71,7 @@ func (a *App) ScanConfiguraitonFiles() (configs []string) {
 }
 
 func (a *App) CreateConfiguration(conf config.Config, name string) string {
-	err := config.CreateConfiguration(conf, name)
+	err := config.CreateConfiguration(&conf, name)
 	if err != nil {
 		return "配置文件创建失败"
 	}

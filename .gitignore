@@ -1,6 +1,8 @@
-build/bin
+build
+
 node_modules
 frontend/dist
 frontend/wailsjs
 data
 .idea
+

@@ -1,8 +1,8 @@
 package model
 
 type Data struct {
-	Properties `json:"properties"`
-	Parent     `json:"parent"`
+	*Properties `json:"properties"`
+	*Parent     `json:"parent"`
 }
 
 type Parent struct {

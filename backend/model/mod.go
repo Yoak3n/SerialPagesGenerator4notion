@@ -1,8 +1,16 @@
 package model
 
-type Title struct{
+type Title struct {
 	Type string `json:"type"`
-	Text struct{
+	Text struct {
 		Content string `json:"content"`
 	} `json:"text"`
+}
+
+type Text struct {
+	Content string `json:"content"`
+}
+
+type Select struct {
+	Name string `json:"name"`
 }

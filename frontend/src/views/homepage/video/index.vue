@@ -9,7 +9,6 @@
                     <n-button type="info" @click="getVideo" :loading="loading">搜索</n-button>
                     <n-button type="success" @click="submitVideoInfo" :loading="loading">提交</n-button>
                 </n-space>
-                
             </n-form-item>
             <n-progress 
                 v-show="total_length != 0" 
@@ -20,7 +19,7 @@
                 :processing="loading"/>
         </n-form>
         <n-divider />
-        <info-show-box :videoInfo="info"></info-show-box>
+        <info-show-box :videoInfo="info" :index="completed_index"></info-show-box>
     </div>
 </template>
 
@@ -29,18 +28,17 @@ import { ref ,computed} from 'vue'
 import { NForm, NFormItem, NInput, NButton, NDivider,NSpace,NProgress,useThemeVars } from 'naive-ui';
 import { changeColor } from 'seemly'
 import { GetVideoInfo, SubmitVideoInfo } from '../../../../wailsjs/go/main/App';
-import { api } from 'wailsjs/go/models';
+import { api } from '../../../../wailsjs/go/models';
 import { InfoShowBox } from '@/components/common/index'
-import {EventsOnMultiple} from '../../../../wailsjs/runtime'
+import {EventsOff, EventsOn} from '../../../../wailsjs/runtime'
 
 let themeVars = useThemeVars()
-
 let loading = ref(false)
 let progress = ref(0)
 let total_length = ref(0)
 let target = ref('')
 let info = ref<api.VideoInfo>()
-
+let completed_index = ref<number[]>([])
 
 let computed_progress = computed(()=>{
     return parseFloat((progress.value/total_length.value*100).toFixed(2))
@@ -56,27 +54,30 @@ const getVideo = () => {
         progress.value = 0
         info.value = value
         total_length.value = value.titles.length
+        progress.value = 0
     })
 }
 const updateProgressBar =()=>{
     progress.value += 1
+    completed_index.value.push(progress.value)
 }
 
 const submitVideoInfo = () => {
     loading.value = true
     progress.value = 0
-    EventsOnMultiple("postProgress",updateProgressBar,total_length.value)
-    SubmitVideoInfo().then(()=> {
+    EventsOff("postProgress")
+    completed_index.value = []
+    EventsOn("postProgress",updateProgressBar)
+    SubmitVideoInfo(target.value).then(()=> {
         loading.value = false
+        window.$message.success("数据上传完成")
     })
 }
-
 </script>
 
 <style scoped>
 .video-wrapper {
     text-align: left;
-
     .n-space {
         width: 100%;
         .n-button{

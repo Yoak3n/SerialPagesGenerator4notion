@@ -22,11 +22,10 @@ func init() {
 	if err != nil {
 		log.Fatalln("Can't open file error.log:", err)
 	}
-	defer file.Close()
 	INFO = log.New(log.Writer(), "[INFO] ", log.LstdFlags|log.Lmsgprefix|log.Lshortfile)
 	DEBUG = log.New(log.Writer(), "[DEBUG] ", log.LstdFlags|log.Lmsgprefix|log.Lshortfile)
 	WARN = log.New(log.Writer(), "[WARN] ", log.LstdFlags|log.Lmsgprefix|log.Lshortfile)
-	ERROR = log.New(io.MultiWriter(file, log.Writer()), "[ERROR] ", log.LstdFlags|log.Lmsgprefix|log.Lshortfile)
+	ERROR = log.New(io.MultiWriter(log.Writer(), file), "[ERROR] ", log.LstdFlags|log.Lmsgprefix|log.Lshortfile)
 }
 func Info(v ...interface{}) {
 	INFO.Println(v[:])

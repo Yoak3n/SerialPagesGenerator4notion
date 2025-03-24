@@ -45,7 +45,7 @@ import { Settings, Videocam, PlayCircle } from '@vicons/ionicons5'
 
 
 const $router = useRouter()
-const $route = useRoute()
+let activeKey = ref('')
 let collapsed = ref(true)
 // 渲染图标函数
 const renderIcon = (icon: Component) => {

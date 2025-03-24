@@ -10,9 +10,10 @@
   },
   "dependencies": {
     "path": "^0.12.7",
-    "pinia": "^2.1.7",
-    "vue": "^3.4.15",
-    "vue-router": "^4.2.5"
+    "pinia": "^2.0.33",
+    "seemly": "^0.3.8",
+    "vue": "^3.2.37",
+    "vue-router": "^4.2.3"
   },
   "devDependencies": {
     "less-loader": "^11.1.4",

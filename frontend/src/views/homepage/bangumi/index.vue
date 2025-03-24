@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import {ref} from 'vue'
 import {NForm,NFormItem,NSpace,NInput,NButton,NDivider} from 'naive-ui'
-import { api } from 'wailsjs/go/models';
+import { api } from '../../../../wailsjs/go/models';
 import { InfoShowBox } from '@/components/common/index'
 import { GetBangumiInfo } from '../../../../wailsjs/go/main/App';
 
